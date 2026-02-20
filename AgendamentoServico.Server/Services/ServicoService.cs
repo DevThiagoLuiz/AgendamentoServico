@@ -1,5 +1,4 @@
 ﻿using Agendamento.Api.Data;
-using Agendamento.Api.Entities;
 using AgendamentoServico.Server.Model;
 using Microsoft.EntityFrameworkCore;
 
