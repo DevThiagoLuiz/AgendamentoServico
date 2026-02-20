@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="agendamentoservico.client/agendamentoservico.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="AgendamentoServico.Server/AgendamentoServico.Server.csproj" />
+</Solution>
