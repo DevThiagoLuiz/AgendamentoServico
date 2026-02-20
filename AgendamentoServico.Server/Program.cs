@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Agendamento.Api.Data;
+using Agendamento.Api.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,10 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddScoped<ProfissionalService>();
+builder.Services.AddScoped<HorarioDisponivelService>();
+builder.Services.AddScoped<ServicoService>();
+builder.Services.AddScoped<AgendamentoService>();
 var app = builder.Build();
 
 // ========================

@@ -1,27 +1,44 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AgendamentoServico.Server.Model
 {
+    public enum StatusAgendamento
+    {
+        Pendente,
+        Confirmado,
+        Cancelado
+    }
+
     public class Agendamento
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        [Key]
+        public Guid Id { get; set; }
 
-        public Guid ClienteId { get; set; }
+        [Required]
+        public string NomeCliente { get; set; } = null!;
 
-        public Guid ServicoId { get; set; }
+        [Required]
+        public string TelefoneCliente { get; set; } = null!;
 
-        public Guid ProfissionalId { get; set; }
-
+        [Required]
         public Guid HorarioDisponivelId { get; set; }
 
-        [MaxLength(50)]
-        public string Status { get; set; } = "Pendente";
-        // Pendente, Confirmado, Recusado, Cancelado
+        [ForeignKey(nameof(HorarioDisponivelId))]
+        public HorarioDisponivel Horario { get; set; } = null!;
 
-        [MaxLength(500)]
-        public string? Observacao { get; set; }
+        [Required]
+        public Guid ServicoId { get; set; }
+
+        [ForeignKey(nameof(ServicoId))]
+        public Servico Servico { get; set; } = null!;
+
+        [Required]
+        public StatusAgendamento Status { get; set; } = StatusAgendamento.Pendente;
+
+        public string? Observacoes { get; set; }
 
         public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
     }
-  
+
 }
