@@ -14,8 +14,8 @@ public class AppDbContext : DbContext
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<Profissional> Profissionais => Set<Profissional>();
     public DbSet<Servico> Servicos => Set<Servico>();
-    public DbSet<Cliente> Clientes => Set<Cliente>();
+    //public DbSet<Cliente> Clientes => Set<Cliente>();
     public DbSet<HorarioDisponivel> Horarios => Set<HorarioDisponivel>();
-    public DbSet<Agendamento> Agendamentos => Set<Agendamento>();
+    public DbSet<AgendamentoServico.Server.Model.Agendamento> Agendamentos => Set<AgendamentoServico.Server.Model.Agendamento> ();
     public DbSet<Empresa> Empresas => Set<Empresa>();
 }
