@@ -1,0 +1,57 @@
+/* FullCalendar Base Styles */
+.fc {
+  font-family: inherit;
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: #e0e0e0;
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  border-color: #e0e0e0;
+}
+
+.fc-daygrid-day-frame {
+  cursor: pointer;
+}
+
+.fc-day-today {
+  background-color: #f0f7ff !important;
+}
+
+.fc-event {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.85rem;
+}
+
+.fc-event:hover {
+  opacity: 0.9;
+}
+
+.fc-daygrid-event {
+  white-space: normal;
+  overflow: visible;
+}
+
+.fc-button-primary {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.fc-button-primary:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.fc-button-primary:disabled {
+  background-color: #9ca3af;
+  border-color: #9ca3af;
+}
+
+.fc-toolbar-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
