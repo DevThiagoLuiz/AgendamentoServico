@@ -1,286 +1,311 @@
-import axios from 'axios';
-import type { 
-  Servico, 
-  Profissional, 
-  HorarioDisponivel, 
-  Agendamento 
-} from '../types';
-import {
-  mockServicos,
-  mockProfissionais,
-  mockHorariosDisponiveis,
-  mockAgendamentos
-} from '../data/mockData';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import axios from "axios";
+import type {
+    Servico,
+    Profissional,
+    HorarioDisponivel,
+    Agendamento
+} from "../types";
+import { toast } from "react-toastify";
 
-const API_BASE_URL = 'https://localhost:5001/api';
-let useMock = false;
-
-// Verifica se o backend está disponível
-const checkBackend = async (): Promise<boolean> => {
-  try {
-    await axios.get(`${API_BASE_URL}/Servico`, { timeout: 2000 });
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-// Inicializa verificando o backend
-checkBackend().then(available => {
-  useMock = !available;
-  if (useMock) {
-    console.log('Backend não disponível, usando dados mock');
-  } else {
-    console.log('Conectado ao backend');
-  }
-});
+const API_BASE_URL = "http://localhost:5000/api";
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 5000
+    baseURL: API_BASE_URL,
+    timeout: 5000
 });
 
-// Serviços
+/* ============================= */
+/*           SERVIÇOS            */
+/* ============================= */
+
 export const servicoService = {
-  getAll: async (): Promise<Servico[]> => {
-    if (useMock) return mockServicos;
-    try {
-      const res = await api.get('/Servico');
-      return res.data;
-    } catch {
-      return mockServicos;
+    getAll: async (): Promise<Servico[]> => {
+        try {
+            const { data } = await api.get("/Servico");
+            return data;
+        } catch {
+            toast.error("Erro ao buscar serviços");
+            return [];
+        }
+    },
+
+    getById: async (id: string): Promise<Servico | null> => {
+        try {
+            const { data } = await api.get(`/Servico/${id}`);
+            return data;
+        } catch {
+            toast.error("Erro ao buscar serviço");
+            return null;
+        }
+    },
+
+    create: async (payload: Partial<Servico>): Promise<Servico | null> => {
+        try {
+            const { data } = await api.post("/Servico", {
+                Nome: payload.nome,
+                DuracaoMinutos: payload.duracaoMinutos,
+                Preco: payload.preco,
+                Ativo: payload.ativo ?? true
+            });
+
+            toast.success("Serviço criado com sucesso!");
+            return data;
+        } catch {
+            toast.error("Erro ao criar serviço");
+            return null;
+        }
+    },
+
+    update: async (
+        id: string,
+        payload: Partial<Servico>
+    ): Promise<Servico | null> => {
+        try {
+            const { data } = await api.put(`/Servico/${id}`, {
+                Nome: payload.nome,
+                DuracaoMinutos: payload.duracaoMinutos,
+                Preco: payload.preco,
+                Ativo: payload.ativo
+            });
+
+            toast.success("Serviço atualizado com sucesso!");
+            return data;
+        } catch {
+            toast.error("Erro ao atualizar serviço");
+            return null;
+        }
+    },
+
+    delete: async (id: string): Promise<boolean> => {
+        try {
+            await api.delete(`/Servico/${id}`);
+            toast.success("Serviço excluído com sucesso!");
+            return true;
+        } catch {
+            toast.error("Erro ao excluir serviço");
+            return false;
+        }
     }
-  },
-  getById: async (id: string): Promise<Servico | null> => {
-    if (useMock) {
-      return mockServicos.find(s => s.id === id) || null;
-    }
-    try {
-      const res = await api.get(`/Servico/${id}`);
-      return res.data;
-    } catch {
-      return mockServicos.find(s => s.id === id) || null;
-    }
-  },
-  create: async (data: Partial<Servico>): Promise<Servico> => {
-    if (useMock) {
-      const novo: Servico = {
-        id: Date.now().toString(),
-        nome: data.nome || '',
-        duracaoMinutos: data.duracaoMinutos || 30,
-        preco: data.preco || 0,
-        ativo: data.ativo !== undefined ? data.ativo : true
-      };
-      mockServicos.push(novo);
-      return novo;
-    }
-    try {
-      const res = await api.post('/Servico', {
-        Nome: data.nome,
-        DuracaoMinutos: data.duracaoMinutos,
-        Preco: data.preco,
-        Ativo: data.ativo !== undefined ? data.ativo : true
-      });
-      return res.data;
-    } catch {
-      const novo: Servico = {
-        id: Date.now().toString(),
-        nome: data.nome || '',
-        duracaoMinutos: data.duracaoMinutos || 30,
-        preco: data.preco || 0,
-        ativo: data.ativo !== undefined ? data.ativo : true
-      };
-      mockServicos.push(novo);
-      return novo;
-    }
-  },
-  update: async (id: string, data: Partial<Servico>): Promise<Servico | null> => {
-    if (useMock) {
-      const servico = mockServicos.find(s => s.id === id);
-      if (servico) {
-        Object.assign(servico, data);
-        return servico;
-      }
-      return null;
-    }
-    try {
-      const res = await api.put(`/Servico/${id}`, {
-        Nome: data.nome,
-        DuracaoMinutos: data.duracaoMinutos,
-        Preco: data.preco,
-        Ativo: data.ativo
-      });
-      return res.data;
-    } catch {
-      const servico = mockServicos.find(s => s.id === id);
-      if (servico) {
-        Object.assign(servico, data);
-        return servico;
-      }
-      return null;
-    }
-  },
-  delete: async (id: string): Promise<boolean> => {
-    if (useMock) {
-      const index = mockServicos.findIndex(s => s.id === id);
-      if (index !== -1) {
-        mockServicos.splice(index, 1);
-        return true;
-      }
-      return false;
-    }
-    try {
-      await api.delete(`/Servico/${id}`);
-      return true;
-    } catch {
-      const index = mockServicos.findIndex(s => s.id === id);
-      if (index !== -1) {
-        mockServicos.splice(index, 1);
-        return true;
-      }
-      return false;
-    }
-  }
 };
+
+/* ============================= */
+/*        PROFISSIONAIS          */
+/* ============================= */
 
 export const profissionalService = {
-  getAll: async (): Promise<Profissional[]> => {
-    if (useMock) return mockProfissionais;
-    try {
-      const res = await api.get('/Profissional');
-      return res.data;
-    } catch {
-      return mockProfissionais;
+    getAll: async (): Promise<Profissional[]> => {
+        try {
+            const { data } = await api.get("/Profissional");
+            return data;
+        } catch {
+            toast.error("Erro ao buscar profissionais");
+            return [];
+        }
+    },
+
+    getById: async (id: string): Promise<Profissional | null> => {
+        try {
+            const { data } = await api.get(`/Profissional/${id}`);
+            return data;
+        } catch {
+            toast.error("Erro ao buscar profissional");
+            return null;
+        }
+    },
+
+    create: async (
+        payload: Partial<Profissional>
+    ): Promise<Profissional | null> => {
+        try {
+            const { data } = await api.post("/Profissional", {
+                Nome: payload.nome,
+                Ativo: payload.ativo ?? true
+            });
+
+            toast.success("Funcionário criado com sucesso!");
+            return data;
+        } catch {
+            toast.error("Erro ao criar funcionário");
+            return null;
+        }
+    },
+
+    update: async (
+        id: string,
+        payload: Partial<Profissional>
+    ): Promise<Profissional | null> => {
+        try {
+            const { data } = await api.put(`/Profissional/${id}`, {
+                Nome: payload.nome,
+                Ativo: payload.ativo
+            });
+
+            toast.success("Funcionário atualizado com sucesso!");
+            return data;
+        } catch {
+            toast.error("Erro ao atualizar funcionário");
+            return null;
+        }
+    },
+
+    delete: async (id: string): Promise<boolean> => {
+        try {
+            await api.delete(`/Profissional/${id}`);
+            toast.success("Profissional excluído com sucesso!");
+            return true;
+        } catch {
+            toast.error("Erro ao excluir profissional");
+            return false;
+        }
     }
-  },
-  getById: async (id: string): Promise<Profissional | null> => {
-    if (useMock) {
-      return mockProfissionais.find(p => p.id === id) || null;
-    }
-    try {
-      const res = await api.get(`/Profissional/${id}`);
-      return res.data;
-    } catch {
-      return mockProfissionais.find(p => p.id === id) || null;
-    }
-  }
 };
+
+/* ============================= */
+/*           HORÁRIOS            */
+/* ============================= */
 
 export const horarioService = {
-  getAll: async (): Promise<HorarioDisponivel[]> => {
-    if (useMock) return mockHorariosDisponiveis;
-    try {
-      const res = await api.get('/HorarioDisponivel');
-      return res.data;
-    } catch {
-      return mockHorariosDisponiveis;
+    getAll: async (): Promise<HorarioDisponivel[]> => {
+        try {
+            const { data } = await api.get("/HorarioDisponivel");
+            return data;
+        } catch {
+            toast.error("Erro ao buscar horários");
+            return [];
+        }
+    },
+
+    getByProfissional: async (
+        profissionalId: string
+    ): Promise<HorarioDisponivel[]> => {
+        try {
+            const { data } = await api.get(
+                `/HorarioDisponivel/profissional/${profissionalId}`
+            );
+            return data;
+        } catch {
+            toast.error("Erro ao buscar horários do profissional");
+            return [];
+        }
+    },
+
+    create: async (
+        payload: Partial<HorarioDisponivel>
+    ): Promise<HorarioDisponivel | null> => {
+        try {
+            const { data } = await api.post("/HorarioDisponivel", payload);
+            toast.success("Horário criado com sucesso!");
+            return data;
+        } catch {
+            toast.error("Erro ao criar horário");
+            return null;
+        }
+    },
+
+    createIntervalo: async (payload: {
+        profissionalId: string;
+        data: string;
+        horaInicio: string;
+        horaFim: string;
+        intervaloMinutos: number;
+    }): Promise<boolean> => {
+        try {
+            await toast.promise(
+                api.post("/HorarioDisponivel/intervalo", payload),
+                {
+                    pending: "Criando horários...",
+                    success: "Horários criados com sucesso!",
+                    error: "Erro ao criar horários"
+                }
+            );
+
+            return true;
+        } catch {
+            return false;
+        }
+    },
+
+    updateStatus: async (
+        id: string,
+        status: string
+    ): Promise<HorarioDisponivel | null> => {
+        try {
+            const { data } = await api.put(`/HorarioDisponivel/${id}`, { status });
+            toast.success("Status atualizado!");
+            return data;
+        } catch {
+            toast.error("Erro ao atualizar status");
+            return null;
+        }
+    },
+
+    delete: async (id: string): Promise<boolean> => {
+        try {
+            await api.delete(`/HorarioDisponivel/${id}`);
+            toast.success("Horário excluído!");
+            return true;
+        } catch {
+            toast.error("Erro ao excluir horário");
+            return false;
+        }
     }
-  },
-  getByProfissional: async (profissionalId: string): Promise<HorarioDisponivel[]> => {
-    if (useMock) {
-      return mockHorariosDisponiveis.filter(h => h.profissionalId === profissionalId);
-    }
-    try {
-      const res = await api.get(`/HorarioDisponivel/profissional/${profissionalId}`);
-      return res.data;
-    } catch {
-      return mockHorariosDisponiveis.filter(h => h.profissionalId === profissionalId);
-    }
-  }
 };
 
+/* ============================= */
+/*         AGENDAMENTOS          */
+/* ============================= */
+
 export const agendamentoService = {
-  getAll: async (): Promise<Agendamento[]> => {
-    if (useMock) return mockAgendamentos;
-    try {
-      const res = await api.get('/Agendamento');
-      return res.data;
-    } catch {
-      return mockAgendamentos;
+    getAll: async (): Promise<Agendamento[]> => {
+        try {
+            const { data } = await api.get("/Agendamento");
+            return data;
+        } catch {
+            toast.error("Erro ao buscar agendamentos");
+            return [];
+        }
+    },
+
+    create: async (
+        payload: Partial<Agendamento>
+    ): Promise<Agendamento | null> => {
+        try {
+            const { data } = await api.post("/Agendamento", {
+                NomeCliente: payload.nomeCliente,
+                TelefoneCliente: payload.telefoneCliente,
+                HorarioDisponivelId: payload.horarioDisponivelId,
+                ServicoId: payload.servicoId,
+                Observacoes: payload.observacoes
+            });
+
+            toast.success("Agendamento criado com sucesso!");
+            return data;
+        } catch {
+            toast.error("Erro ao criar agendamento");
+            return null;
+        }
+    },
+
+    confirm: async (id: string): Promise<Agendamento | null> => {
+        try {
+            const { data } = await api.put(`/Agendamento/confirm/${id}`);
+            toast.success("Agendamento confirmado!");
+            return data;
+        } catch {
+            toast.error("Erro ao confirmar agendamento");
+            return null;
+        }
+    },
+
+    cancel: async (id: string): Promise<Agendamento | null> => {
+        try {
+            const { data } = await api.put(`/Agendamento/cancel/${id}`);
+            toast.warning("Agendamento cancelado!");
+            return data;
+        } catch {
+            toast.error("Erro ao cancelar agendamento");
+            return null;
+        }
     }
-  },
-  create: async (data: Partial<Agendamento>): Promise<Agendamento> => {
-    if (useMock) {
-      const novo: Agendamento = {
-        id: Date.now().toString(),
-        nomeCliente: data.nomeCliente || '',
-        telefoneCliente: data.telefoneCliente || '',
-        cpfCliente: data.cpfCliente,
-        horarioDisponivelId: data.horarioDisponivelId || '',
-        servicoId: data.servicoId || '',
-        status: 'Pendente',
-        observacoes: data.observacoes,
-        criadoEm: new Date()
-      };
-      mockAgendamentos.push(novo);
-      return novo;
-    }
-    try {
-      const res = await api.post('/Agendamento', {
-        NomeCliente: data.nomeCliente,
-        TelefoneCliente: data.telefoneCliente,
-        HorarioDisponivelId: data.horarioDisponivelId,
-        ServicoId: data.servicoId,
-        Observacoes: data.observacoes
-      });
-      return res.data;
-    } catch {
-      // Fallback para mock em caso de erro
-      const novo: Agendamento = {
-        id: Date.now().toString(),
-        nomeCliente: data.nomeCliente || '',
-        telefoneCliente: data.telefoneCliente || '',
-        cpfCliente: data.cpfCliente,
-        horarioDisponivelId: data.horarioDisponivelId || '',
-        servicoId: data.servicoId || '',
-        status: 'Pendente',
-        observacoes: data.observacoes,
-        criadoEm: new Date()
-      };
-      mockAgendamentos.push(novo);
-      return novo;
-    }
-  },
-  confirm: async (id: string): Promise<Agendamento | null> => {
-    if (useMock) {
-      const agendamento = mockAgendamentos.find(a => a.id === id);
-      if (agendamento) {
-        agendamento.status = 'Confirmado';
-        return agendamento;
-      }
-      return null;
-    }
-    try {
-      const res = await api.put(`/Agendamento/confirm/${id}`);
-      return res.data;
-    } catch {
-      const agendamento = mockAgendamentos.find(a => a.id === id);
-      if (agendamento) {
-        agendamento.status = 'Confirmado';
-        return agendamento;
-      }
-      return null;
-    }
-  },
-  cancel: async (id: string): Promise<Agendamento | null> => {
-    if (useMock) {
-      const agendamento = mockAgendamentos.find(a => a.id === id);
-      if (agendamento) {
-        agendamento.status = 'Cancelado';
-        return agendamento;
-      }
-      return null;
-    }
-    try {
-      const res = await api.put(`/Agendamento/cancel/${id}`);
-      return res.data;
-    } catch {
-      const agendamento = mockAgendamentos.find(a => a.id === id);
-      if (agendamento) {
-        agendamento.status = 'Cancelado';
-        return agendamento;
-      }
-      return null;
-    }
-  }
 };

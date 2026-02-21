@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Agendamento.Api.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
+    [ApiController]
+    [Route("api/[controller]")]
 public class HorarioDisponivelController : ControllerBase
 {
     private readonly HorarioDisponivelService _service;
@@ -35,6 +35,30 @@ public class HorarioDisponivelController : ControllerBase
         var result = await _service.GetByIdAsync(id);
         if (result == null) return NotFound();
         return Ok(result);
+    }
+
+    [HttpPost("intervalo")]
+    public async Task<IActionResult> CriarIntervalo(CriarHorarioIntervaloDto dto)
+    {
+
+        if (!TimeSpan.TryParse(dto.HoraInicio, out var horaInicio))
+            return BadRequest("HoraInicio inválida.");
+
+        if (!TimeSpan.TryParse(dto.HoraFim, out var horaFim))
+            return BadRequest("HoraFim inválida.");
+
+        if (horaFim <= horaInicio)
+            return BadRequest("Hora fim deve ser maior que hora início.");
+
+        var horarios = await _service.CreateIntervaloAsync(
+            dto.ProfissionalId,
+            dto.Data,
+            horaInicio,
+            horaFim,
+            dto.IntervaloMinutos
+        );
+
+        return Ok(horarios);
     }
 
     [HttpPost]

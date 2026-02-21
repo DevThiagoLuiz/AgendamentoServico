@@ -1,89 +1,115 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Box,
     Typography,
     Button,
     IconButton
 } from "@mui/material";
-import { DataGrid, type GridColDef, type GridRowParams } from "@mui/x-data-grid";
+import {
+    DataGrid,
+    type GridColDef,
+    type GridRowParams
+} from "@mui/x-data-grid";
 import { Add, Edit, Delete } from "@mui/icons-material";
-import type { Profissional } from "../types";
-import { profissionalService } from "../services/apiService";
-import FuncionarioModal from "../Components/FuncionarioModal";
+import type { HorarioDisponivel } from "../types";
+import { horarioService } from "../services/apiService";
+import HorarioModal from "../Components/HorarioModal";
 
-const Funcionarios: React.FC = () => {
-    const [profissionais, setProfissionais] = useState<Profissional[]>([]);
+const Horarios: React.FC = () => {
+    const [horarios, setHorarios] = useState<HorarioDisponivel[]>([]);
     const [modalOpen, setModalOpen] = useState(false);
-    const [selectedProfissional, setSelectedProfissional] = useState<Profissional | null>(null);
+    const [selectedHorario, setSelectedHorario] =
+        useState<HorarioDisponivel | null>(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        loadProfissionais();
+        loadHorarios();
     }, []);
 
-    const loadProfissionais = async () => {
+    const loadHorarios = async () => {
         setLoading(true);
         try {
-            const data = await profissionalService.getAll();
-            setProfissionais(data);
+            const data = await horarioService.getAll();
+            setHorarios(data);
         } catch (error) {
-            console.error("Erro ao carregar funcionários:", error);
+            console.error("Erro ao carregar horários:", error);
         } finally {
             setLoading(false);
         }
     };
 
     const handleAdd = () => {
-        setSelectedProfissional(null);
+        setSelectedHorario(null);
         setModalOpen(true);
     };
 
-    const handleEdit = (profissional: Profissional) => {
-        setSelectedProfissional(profissional);
+    const handleEdit = (horario: HorarioDisponivel) => {
+        setSelectedHorario(horario);
         setModalOpen(true);
     };
 
     const handleDelete = async (id: string) => {
-        if (window.confirm("Tem certeza que deseja excluir este funcionário?")) {
+        if (window.confirm("Tem certeza que deseja excluir este horário?")) {
             try {
-                await profissionalService.delete(id);
-                await loadProfissionais();
+                await horarioService.delete(id);
+                await loadHorarios();
             } catch (error) {
-                console.error("Erro ao excluir funcionário:", error);
+                console.error("Erro ao excluir horário:", error);
             }
         }
     };
 
-    const handleSave = async (data: Partial<Profissional>) => {
+    const handleSave = async (data: any) => {
         try {
-            if (selectedProfissional) {
-                await profissionalService.update(selectedProfissional.id, data);
+            if (selectedHorario) {
+                // edição = atualizar status
+                await horarioService.updateStatus(
+                    selectedHorario.id,
+                    data.status
+                );
             } else {
-                await profissionalService.create(data);
+                // criação = intervalo
+                await horarioService.createIntervalo(data);
             }
 
-            await loadProfissionais();
+            await loadHorarios();
         } catch (error) {
-            console.error("Erro ao salvar funcionário:", error);
+            console.error("Erro ao salvar horário:", error);
         }
     };
 
     const columns: GridColDef[] = [
         {
-            field: "nome",
-            headerName: "Nome",
+            field: "dataHoraInicio",
+            headerName: "Início",
             flex: 1,
-            minWidth: 250
+            minWidth: 180,
+            renderCell: (params) =>
+                new Date(params.value).toLocaleString()
         },
         {
-            field: "ativo",
+            field: "dataHoraFim",
+            headerName: "Fim",
+            flex: 1,
+            minWidth: 180,
+            renderCell: (params) =>
+                new Date(params.value).toLocaleString()
+        },
+        {
+            field: "status",
             headerName: "Status",
-            width: 120,
-            type: "boolean",
+            width: 140,
             renderCell: (params) => (
                 <Box
                     sx={{
-                        backgroundColor: params.value ? "#4caf50" : "#9e9e9e",
+                        backgroundColor:
+                            params.value === "Disponivel"
+                                ? "#4caf50"
+                                : params.value === "Confirmado"
+                                    ? "#2196f3"
+                                    : params.value === "Pendente"
+                                        ? "#ff9800"
+                                        : "#9e9e9e",
                         color: "#fff",
                         px: 1,
                         py: 0.5,
@@ -92,7 +118,7 @@ const Funcionarios: React.FC = () => {
                         fontWeight: "bold"
                     }}
                 >
-                    {params.value ? "Ativo" : "Inativo"}
+                    {params.value}
                 </Box>
             )
         },
@@ -105,11 +131,14 @@ const Funcionarios: React.FC = () => {
                 <Box>
                     <IconButton
                         size="small"
-                        onClick={() => handleEdit(params.row as Profissional)}
+                        onClick={() =>
+                            handleEdit(params.row as HorarioDisponivel)
+                        }
                         color="primary"
                     >
                         <Edit />
                     </IconButton>
+
                     <IconButton
                         size="small"
                         onClick={() => handleDelete(params.row.id)}
@@ -133,7 +162,7 @@ const Funcionarios: React.FC = () => {
                 }}
             >
                 <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                    Funcionários
+                    Horários
                 </Typography>
 
                 <Button
@@ -141,13 +170,13 @@ const Funcionarios: React.FC = () => {
                     startIcon={<Add />}
                     onClick={handleAdd}
                 >
-                    Adicionar Funcionário
+                    Criar Horários
                 </Button>
             </Box>
 
             <Box sx={{ height: 600, width: "100%" }}>
                 <DataGrid
-                    rows={profissionais}
+                    rows={horarios}
                     columns={columns}
                     loading={loading}
                     getRowId={(row) => row.id}
@@ -161,17 +190,17 @@ const Funcionarios: React.FC = () => {
                 />
             </Box>
 
-            <FuncionarioModal
+            <HorarioModal
                 open={modalOpen}
                 onClose={() => {
                     setModalOpen(false);
-                    setSelectedProfissional(null);
+                    setSelectedHorario(null);
                 }}
-                profissional={selectedProfissional}
+                horario={selectedHorario}
                 onSave={handleSave}
             />
         </Box>
     );
 };
 
-export default Funcionarios;
+export default Horarios;

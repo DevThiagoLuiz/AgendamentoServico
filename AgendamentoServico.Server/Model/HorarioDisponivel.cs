@@ -15,4 +15,13 @@ namespace AgendamentoServico.Server.Model
         public string Status { get; set; } = "Disponivel";
         // Disponivel, Pendente, Confirmado, Bloqueado
     }
+
+    public class CriarHorarioIntervaloDto
+    {
+        public Guid ProfissionalId { get; set; }
+        public DateTime Data { get; set; }
+        public string HoraInicio { get; set; }
+        public string HoraFim { get; set; }
+        public int IntervaloMinutos { get; set; }
+    }
 }

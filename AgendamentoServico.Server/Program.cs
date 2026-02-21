@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySQL(connectionString)  // UseMySQL do pacote oficial
+    options.UseMySQL(connectionString)
 );
 
 // ========================
@@ -20,20 +20,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddControllers();
 
-// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS (para React depois)
+// CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
+    options.AddPolicy("AllowAll",
         policy =>
         {
             policy
+                .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowAnyOrigin(); // depois você restringe
+                .AllowAnyMethod();
         });
 });
 
@@ -41,6 +40,7 @@ builder.Services.AddScoped<ProfissionalService>();
 builder.Services.AddScoped<HorarioDisponivelService>();
 builder.Services.AddScoped<ServicoService>();
 builder.Services.AddScoped<AgendamentoService>();
+
 var app = builder.Build();
 
 // ========================
@@ -53,9 +53,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-app.UseCors("AllowFrontend");
+// ✅ agora sim
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 

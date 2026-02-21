@@ -60,4 +60,55 @@ public class HorarioDisponivelService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<List<HorarioDisponivel>> CreateIntervaloAsync(
+      Guid profissionalId,
+      DateTime data,
+      TimeSpan horaInicio,
+      TimeSpan horaFim,
+      int intervaloMinutos)
+    {
+        var horariosCriados = new List<HorarioDisponivel>();
+
+        var inicio = data.Date.Add(horaInicio);
+        var fimLimite = data.Date.Add(horaFim);
+
+        while (inicio < fimLimite)
+        {
+            var fim = inicio.AddMinutes(intervaloMinutos);
+
+            if (fim > fimLimite)
+                break;
+
+            var existeConflito = await _context.Horarios.AnyAsync(h =>
+                h.ProfissionalId == profissionalId &&
+                (
+                    inicio < h.DataHoraFim &&
+                    fim > h.DataHoraInicio
+                )
+            );
+
+            if (!existeConflito)
+            {
+                horariosCriados.Add(new HorarioDisponivel
+                {
+                    Id = Guid.NewGuid(),
+                    ProfissionalId = profissionalId,
+                    DataHoraInicio = inicio,
+                    DataHoraFim = fim,
+                    Status = "Disponivel"
+                });
+            }
+
+            inicio = fim;
+        }
+
+        if (horariosCriados.Any())
+        {
+            await _context.Horarios.AddRangeAsync(horariosCriados);
+            await _context.SaveChangesAsync();
+        }
+
+        return horariosCriados;
+    }
 }
