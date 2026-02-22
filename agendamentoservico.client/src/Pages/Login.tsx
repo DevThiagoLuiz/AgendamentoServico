@@ -9,11 +9,10 @@ import {
     Alert,
     CircularProgress
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { authService } from "../services/apiService";
+import { toast} from 'react-toastify';
 
 const Login: React.FC = () => {
-    const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
@@ -28,15 +27,13 @@ const Login: React.FC = () => {
         try {
             authService.login(email, senha);
 
-
-            // redireciona
-            navigate("/");
-
         } catch (error: any) {
             if (error.response?.status === 401) {
                 setErro("Email ou senha inválidos.");
+                toast.error("Email ou senha inválidos.")
             } else {
                 setErro("Erro ao conectar com o servidor.");
+                toast.error("Erro ao conectar com o servidor.");
             }
         } finally {
             setLoading(false);

@@ -17,7 +17,7 @@ public class AuthController : ControllerBase
         var result = await _authService.LoginAsync(request.Email, request.Senha);
 
         if (result == null)
-            return Unauthorized("Email ou senha inválidos");
+            return BadRequest("Email ou senha inválidos");
 
         return Ok(new
         {

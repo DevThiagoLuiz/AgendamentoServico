@@ -56,6 +56,7 @@ export const authService = {
 
             localStorage.setItem("token", data.token);
             localStorage.setItem("usuario", JSON.stringify(data.usuario));
+            localStorage.setItem("tipo", JSON.stringify(data.usuario.tipo));
 
             toast.success("Login realizado com sucesso!");
             return data;
@@ -63,7 +64,7 @@ export const authService = {
             if (error.response?.status === 401) {
                 toast.error("Email ou senha inválidos");
             } else {
-                toast.error("Erro ao realizar login");
+                toast.error("Email ou senha inválidos");
             }
             return null;
         }

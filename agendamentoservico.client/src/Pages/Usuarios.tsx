@@ -36,7 +36,7 @@ const Usuarios: React.FC = () => {
     };
 
 
-    const userTipo = localStorage.getItem("tipo"); // salvo no login
+    const userTipo = localStorage.getItem("tipo")?.replace(/['"]/g, '').trim(); // salvo no login
 
     useEffect(() => {
         loadUsuarios();
