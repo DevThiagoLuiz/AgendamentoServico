@@ -1,5 +1,4 @@
 ﻿using Agendamento.Api.Data;
-using AgendamentoServico.Server.Data;
 using AgendamentoServico.Server.Model;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
@@ -20,10 +19,10 @@ public class AuthService
     }
 
     // 🔐 LOGIN
-    public async Task<string?> LoginAsync(string email, string senha)
+    public async Task<(string Token, object Usuario)?> LoginAsync(string email, string senha)
     {
-        // 👑 LOGIN MASTER
-        if (email == "admin" && senha == "8577")
+        // LOGIN MASTER
+        if (email == "admin@sistema.com" && senha == "8577")
         {
             var master = new Usuario
             {
@@ -34,22 +33,35 @@ public class AuthService
                 Ativo = true
             };
 
-            return GerarToken(master);
+            var token = GerarToken(master);
+
+            return (token, new
+            {
+                master.Id,
+                master.Nome,
+                master.Email,
+                master.Tipo
+            });
         }
 
-        // 🔎 LOGIN NORMAL
         var usuario = await _context.Usuarios
             .FirstOrDefaultAsync(u => u.Email == email && u.Ativo);
 
         if (usuario == null)
             return null;
 
-        var senhaValida = BCrypt.Net.BCrypt.Verify(senha, usuario.SenhaHash);
-
-        if (!senhaValida)
+        if (!BCrypt.Net.BCrypt.Verify(senha, usuario.SenhaHash))
             return null;
 
-        return GerarToken(usuario);
+        var jwt = GerarToken(usuario);
+
+        return (jwt, new
+        {
+            usuario.Id,
+            usuario.Nome,
+            usuario.Email,
+            usuario.Tipo,
+        });
     }
 
     // 🎟 GERAR TOKEN

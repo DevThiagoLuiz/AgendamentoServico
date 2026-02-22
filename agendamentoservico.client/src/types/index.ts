@@ -13,6 +13,7 @@ export interface Usuario {
     tipo: "Admin" | "Profissional";
     ativo: boolean;
     criadoEm: string;
+    profissionalId: number;
 }
 export interface Profissional {
   id: string;

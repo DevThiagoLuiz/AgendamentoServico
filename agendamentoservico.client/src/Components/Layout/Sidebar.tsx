@@ -16,6 +16,7 @@ import {
     Build,
     People,
     Timelapse,
+    Person,
     Login as LoginIcon
 } from '@mui/icons-material';
 
@@ -26,6 +27,7 @@ const menuItems = [
     { text: 'Serviços', icon: <Build />, path: '/servicos' },
     { text: 'Funcionários', icon: <People />, path: '/funcionarios' },
     { text: 'Horários', icon: <Timelapse />, path: '/horarios' },
+    { text: 'Usuários', icon: <Person />, path: '/usuarios' },
     { text: 'Login', icon: <LoginIcon />, path: '/login' }
 ];
 

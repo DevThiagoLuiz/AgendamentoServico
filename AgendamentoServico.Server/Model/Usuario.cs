@@ -23,6 +23,7 @@ namespace AgendamentoServico.Server.Model
         [MaxLength(50)]
         public string Tipo { get; set; } = "Profissional"; // Admin ou Profissional
 
+        public int ProfissionalId { get; set; }
         public bool Ativo { get; set; } = true;
 
         public DateTime CriadoEm { get; set; } = DateTime.UtcNow;

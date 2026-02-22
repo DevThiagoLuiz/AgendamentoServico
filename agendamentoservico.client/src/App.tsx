@@ -10,6 +10,7 @@ import Login from "./Pages/Login";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Horarios from "./Pages/Horarios";
+import Usuarios from "./Pages/Usuarios";
 
 const theme = createTheme({
     palette: {
@@ -40,6 +41,7 @@ const App: React.FC = () => {
                             <Route path="servicos" element={<Servicos />} />
                             <Route path="funcionarios" element={<Funcionarios />} />
                             <Route path="horarios" element={<Horarios />} />
+                            <Route path="usuarios" element={<Usuarios />} />
                             <Route path="login" element={<Login />} />
                         </Route>
                     </Routes>

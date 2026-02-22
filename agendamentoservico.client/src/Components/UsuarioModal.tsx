@@ -10,7 +10,8 @@ import {
     Switch,
     MenuItem
 } from "@mui/material";
-import type { Usuario } from "../types";
+import type { Usuario, Profissional } from "../types";
+import { profissionalService } from "../services/apiService";
 
 interface Props {
     open: boolean;
@@ -18,6 +19,7 @@ interface Props {
     usuario: Usuario | null;
     onSave: (data: any) => void;
     isAdmin: boolean;
+    profissionais: Profissional[]; 
 }
 
 const UsuarioModal: React.FC<Props> = ({
@@ -25,13 +27,15 @@ const UsuarioModal: React.FC<Props> = ({
     onClose,
     usuario,
     onSave,
-    isAdmin
+    isAdmin,
+    profissionais
 }) => {
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [tipo, setTipo] = useState<"Admin" | "Profissional">("Profissional");
     const [ativo, setAtivo] = useState(true);
+    const [profissionalId, setProfissionalId] = useState<string>(""); // 👈 NOVO
 
     useEffect(() => {
         if (usuario) {
@@ -39,12 +43,14 @@ const UsuarioModal: React.FC<Props> = ({
             setEmail(usuario.email);
             setTipo(usuario.tipo);
             setAtivo(usuario.ativo);
+            setProfissionalId(usuario.profissionalId ?? "");
         } else {
             setNome("");
             setEmail("");
             setSenha("");
             setTipo("Profissional");
             setAtivo(true);
+            setProfissionalId("");
         }
     }, [usuario]);
 
@@ -54,7 +60,8 @@ const UsuarioModal: React.FC<Props> = ({
             email,
             senha,
             tipo: isAdmin ? tipo : "Profissional",
-            ativo
+            ativo,
+            profissionalId: tipo === "Profissional" ? profissionalId : null
         });
 
         onClose();
@@ -99,12 +106,35 @@ const UsuarioModal: React.FC<Props> = ({
                         fullWidth
                         sx={{ mb: 2 }}
                         value={tipo}
-                        onChange={(e) => setTipo(e.target.value as any)}
+                        onChange={(e) =>
+                            setTipo(e.target.value as "Admin" | "Profissional")
+                        }
                     >
                         <MenuItem value="Admin">Admin</MenuItem>
                         <MenuItem value="Profissional">Profissional</MenuItem>
                     </TextField>
                 )}
+
+                <TextField
+                    select
+                    label="Funcionário vinculado"
+                    fullWidth
+                    sx={{ mb: 2 }}
+                    value={profissionalId}
+                    onChange={(e) => setProfissionalId(e.target.value)}
+                >
+                    <MenuItem value="">
+                        Nenhum
+                    </MenuItem>
+
+                    {profissionais != null && profissionais
+                        .filter(p => p.ativo)
+                        .map((prof) => (
+                            <MenuItem key={prof.id} value={prof.id}>
+                                {prof.nome}
+                            </MenuItem>
+                        ))}
+                </TextField>
 
                 <FormControlLabel
                     control={

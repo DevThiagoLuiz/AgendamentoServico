@@ -14,12 +14,16 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var token = await _authService.LoginAsync(request.Email, request.Senha);
+        var result = await _authService.LoginAsync(request.Email, request.Senha);
 
-        if (token == null)
+        if (result == null)
             return Unauthorized("Email ou senha inválidos");
 
-        return Ok(new { token });
+        return Ok(new
+        {
+            token = result.Value.Token,
+            usuario = result.Value.Usuario
+        });
     }
 }
 

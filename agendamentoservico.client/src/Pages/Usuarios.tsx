@@ -7,15 +7,34 @@ import {
 } from "@mui/material";
 import { DataGrid, type GridColDef, type GridRowParams } from "@mui/x-data-grid";
 import { Add, Edit, Delete } from "@mui/icons-material";
-import type { Usuario } from "../types";
-import UsuarioModal from "../components/UsuarioModal";
-import { usuarioService } from "../services/apiService";
+import type { Profissional, Usuario } from "../types";
+import { profissionalService, usuarioService } from "../services/apiService";
+import UsuarioModal from "../Components/UsuarioModal";
 
 const Usuarios: React.FC = () => {
+
     const [usuarios, setUsuarios] = useState<Usuario[]>([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedUsuario, setSelectedUsuario] = useState<Usuario | null>(null);
     const [loading, setLoading] = useState(false);
+    const [profissionais, setProfissionais] = useState<Profissional[]>([]);
+
+    useEffect(() => {
+        loadProfissionais();
+    }, []);
+
+    const loadProfissionais = async () => {
+        setLoading(true);
+        try {
+            const data = await profissionalService.getAll();
+            setProfissionais(data);
+        } catch (error) {
+            console.error("Erro ao carregar funcionários:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     const userTipo = localStorage.getItem("tipo"); // salvo no login
 
@@ -139,6 +158,7 @@ const Usuarios: React.FC = () => {
                 usuario={selectedUsuario}
                 onSave={handleSave}
                 isAdmin={userTipo === "Admin"}
+                profissionais={profissionais}
             />
         </Box>
     );

@@ -30,7 +30,7 @@ const Login: React.FC = () => {
 
 
             // redireciona
-            navigate("/agenda");
+            navigate("/");
 
         } catch (error: any) {
             if (error.response?.status === 401) {
