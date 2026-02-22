@@ -4,7 +4,8 @@ import type {
     Servico,
     Profissional,
     HorarioDisponivel,
-    Agendamento
+    Agendamento,
+    Usuario
 } from "../types";
 import { toast } from "react-toastify";
 
@@ -12,8 +13,104 @@ const API_BASE_URL = "http://localhost:5000/api";
 
 const api = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 5000
+    timeout: 8000
 });
+
+/* ============================= */
+/*        INTERCEPTORS           */
+/* ============================= */
+
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+});
+
+// 🔥 Logout automático se token expirar
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("usuario");
+            window.location.href = "/login";
+        }
+        return Promise.reject(error);
+    }
+);
+
+/* ============================= */
+/*             USER              */
+/* ============================= */
+
+export const usuarioService = {
+    async getAll(): Promise<Usuario[]> {
+        const { data } = await api.get("/usuarios");
+        return data;
+    },
+
+    async create(payload: Partial<Usuario> & { senha?: string }) {
+        const { data } = await api.post("/usuarios", payload);
+        return data;
+    },
+
+    async update(id: string, payload: Partial<Usuario> & { senha?: string }) {
+        const { data } = await api.put(`/usuarios/${id}`, payload);
+        return data;
+    },
+
+    async delete(id: string) {
+        await api.delete(`/usuarios/${id}`);
+    }
+};
+
+/* ============================= */
+/*             AUTH              */
+/* ============================= */
+
+export const authService = {
+    login: async (email: string, senha: string) => {
+        try {
+            const { data } = await api.post("/auth/login", {
+                email,
+                senha
+            });
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+            toast.success("Login realizado com sucesso!");
+            return data;
+        } catch (error: any) {
+            if (error.response?.status === 401) {
+                toast.error("Email ou senha inválidos");
+            } else {
+                toast.error("Erro ao realizar login");
+            }
+            return null;
+        }
+    },
+
+    logout: () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("usuario");
+        window.location.href = "/login";
+    },
+
+    getUsuario: () => {
+        const user = localStorage.getItem("usuario");
+        return user ? JSON.parse(user) : null;
+    },
+
+    isAdmin: () => {
+        const user = authService.getUsuario();
+        return user?.tipo === "Admin";
+    }
+};
 
 /* ============================= */
 /*           SERVIÇOS            */
@@ -30,17 +127,7 @@ export const servicoService = {
         }
     },
 
-    getById: async (id: string): Promise<Servico | null> => {
-        try {
-            const { data } = await api.get(`/Servico/${id}`);
-            return data;
-        } catch {
-            toast.error("Erro ao buscar serviço");
-            return null;
-        }
-    },
-
-    create: async (payload: Partial<Servico>): Promise<Servico | null> => {
+    create: async (payload: Partial<Servico>) => {
         try {
             const { data } = await api.post("/Servico", {
                 Nome: payload.nome,
@@ -54,37 +141,6 @@ export const servicoService = {
         } catch {
             toast.error("Erro ao criar serviço");
             return null;
-        }
-    },
-
-    update: async (
-        id: string,
-        payload: Partial<Servico>
-    ): Promise<Servico | null> => {
-        try {
-            const { data } = await api.put(`/Servico/${id}`, {
-                Nome: payload.nome,
-                DuracaoMinutos: payload.duracaoMinutos,
-                Preco: payload.preco,
-                Ativo: payload.ativo
-            });
-
-            toast.success("Serviço atualizado com sucesso!");
-            return data;
-        } catch {
-            toast.error("Erro ao atualizar serviço");
-            return null;
-        }
-    },
-
-    delete: async (id: string): Promise<boolean> => {
-        try {
-            await api.delete(`/Servico/${id}`);
-            toast.success("Serviço excluído com sucesso!");
-            return true;
-        } catch {
-            toast.error("Erro ao excluir serviço");
-            return false;
         }
     }
 };
@@ -102,62 +158,6 @@ export const profissionalService = {
             toast.error("Erro ao buscar profissionais");
             return [];
         }
-    },
-
-    getById: async (id: string): Promise<Profissional | null> => {
-        try {
-            const { data } = await api.get(`/Profissional/${id}`);
-            return data;
-        } catch {
-            toast.error("Erro ao buscar profissional");
-            return null;
-        }
-    },
-
-    create: async (
-        payload: Partial<Profissional>
-    ): Promise<Profissional | null> => {
-        try {
-            const { data } = await api.post("/Profissional", {
-                Nome: payload.nome,
-                Ativo: payload.ativo ?? true
-            });
-
-            toast.success("Funcionário criado com sucesso!");
-            return data;
-        } catch {
-            toast.error("Erro ao criar funcionário");
-            return null;
-        }
-    },
-
-    update: async (
-        id: string,
-        payload: Partial<Profissional>
-    ): Promise<Profissional | null> => {
-        try {
-            const { data } = await api.put(`/Profissional/${id}`, {
-                Nome: payload.nome,
-                Ativo: payload.ativo
-            });
-
-            toast.success("Funcionário atualizado com sucesso!");
-            return data;
-        } catch {
-            toast.error("Erro ao atualizar funcionário");
-            return null;
-        }
-    },
-
-    delete: async (id: string): Promise<boolean> => {
-        try {
-            await api.delete(`/Profissional/${id}`);
-            toast.success("Profissional excluído com sucesso!");
-            return true;
-        } catch {
-            toast.error("Erro ao excluir profissional");
-            return false;
-        }
     }
 };
 
@@ -166,16 +166,6 @@ export const profissionalService = {
 /* ============================= */
 
 export const horarioService = {
-    getAll: async (): Promise<HorarioDisponivel[]> => {
-        try {
-            const { data } = await api.get("/HorarioDisponivel");
-            return data;
-        } catch {
-            toast.error("Erro ao buscar horários");
-            return [];
-        }
-    },
-
     getByProfissional: async (
         profissionalId: string
     ): Promise<HorarioDisponivel[]> => {
@@ -185,69 +175,8 @@ export const horarioService = {
             );
             return data;
         } catch {
-            toast.error("Erro ao buscar horários do profissional");
+            toast.error("Erro ao buscar horários");
             return [];
-        }
-    },
-
-    create: async (
-        payload: Partial<HorarioDisponivel>
-    ): Promise<HorarioDisponivel | null> => {
-        try {
-            const { data } = await api.post("/HorarioDisponivel", payload);
-            toast.success("Horário criado com sucesso!");
-            return data;
-        } catch {
-            toast.error("Erro ao criar horário");
-            return null;
-        }
-    },
-
-    createIntervalo: async (payload: {
-        profissionalId: string;
-        data: string;
-        horaInicio: string;
-        horaFim: string;
-        intervaloMinutos: number;
-    }): Promise<boolean> => {
-        try {
-            await toast.promise(
-                api.post("/HorarioDisponivel/intervalo", payload),
-                {
-                    pending: "Criando horários...",
-                    success: "Horários criados com sucesso!",
-                    error: "Erro ao criar horários"
-                }
-            );
-
-            return true;
-        } catch {
-            return false;
-        }
-    },
-
-    updateStatus: async (
-        id: string,
-        status: string
-    ): Promise<HorarioDisponivel | null> => {
-        try {
-            const { data } = await api.put(`/HorarioDisponivel/${id}`, { status });
-            toast.success("Status atualizado!");
-            return data;
-        } catch {
-            toast.error("Erro ao atualizar status");
-            return null;
-        }
-    },
-
-    delete: async (id: string): Promise<boolean> => {
-        try {
-            await api.delete(`/HorarioDisponivel/${id}`);
-            toast.success("Horário excluído!");
-            return true;
-        } catch {
-            toast.error("Erro ao excluir horário");
-            return false;
         }
     }
 };
@@ -267,9 +196,7 @@ export const agendamentoService = {
         }
     },
 
-    create: async (
-        payload: Partial<Agendamento>
-    ): Promise<Agendamento | null> => {
+    create: async (payload: Partial<Agendamento>) => {
         try {
             const { data } = await api.post("/Agendamento", {
                 NomeCliente: payload.nomeCliente,
@@ -281,31 +208,41 @@ export const agendamentoService = {
 
             toast.success("Agendamento criado com sucesso!");
             return data;
-        } catch {
-            toast.error("Erro ao criar agendamento");
+        } catch (error: any) {
+            if (error.response?.data?.errors) {
+                toast.error("Erro de validação nos dados.");
+            } else {
+                toast.error("Erro ao criar agendamento.");
+            }
             return null;
         }
     },
 
-    confirm: async (id: string): Promise<Agendamento | null> => {
+    confirm: async (id: string) => {
         try {
-            const { data } = await api.put(`/Agendamento/confirm/${id}`);
+            const { data } = await api.put(`/Agendamento/confirmar/${id}`);
             toast.success("Agendamento confirmado!");
             return data;
-        } catch {
-            toast.error("Erro ao confirmar agendamento");
+        } catch (error: any) {
+            if (error.response?.status === 403) {
+                toast.error("Apenas Admin pode confirmar.");
+            } else {
+                toast.error("Erro ao confirmar agendamento.");
+            }
             return null;
         }
     },
 
-    cancel: async (id: string): Promise<Agendamento | null> => {
+    cancel: async (id: string) => {
         try {
-            const { data } = await api.put(`/Agendamento/cancel/${id}`);
+            const { data } = await api.put(`/Agendamento/cancelar/${id}`);
             toast.warning("Agendamento cancelado!");
             return data;
         } catch {
-            toast.error("Erro ao cancelar agendamento");
+            toast.error("Erro ao cancelar agendamento.");
             return null;
         }
     }
 };
+
+export default api;

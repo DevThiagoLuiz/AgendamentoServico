@@ -6,7 +6,14 @@ export interface Servico {
   descricao?: string;
   ativo: boolean;
 }
-
+export interface Usuario {
+    id: string;
+    nome: string;
+    email: string;
+    tipo: "Admin" | "Profissional";
+    ativo: boolean;
+    criadoEm: string;
+}
 export interface Profissional {
   id: string;
   nome: string;

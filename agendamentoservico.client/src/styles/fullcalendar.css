@@ -55,3 +55,31 @@
   font-size: 1.5rem;
   font-weight: bold;
 }
+
+
+/* Hover suave */
+.fc-event {
+    border-radius: 8px;
+    padding: 4px;
+    font-weight: 500;
+    transition: 0.2s ease;
+}
+
+/* Disponível */
+.evento-disponivel:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+}
+
+/* Bloqueado */
+.evento-bloqueado {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Header moderno */
+.fc-toolbar-title {
+    font-weight: 600;
+    font-size: 18px;
+}

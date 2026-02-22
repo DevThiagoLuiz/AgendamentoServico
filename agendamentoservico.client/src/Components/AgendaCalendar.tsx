@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import type { EventInput } from '@fullcalendar/core';
@@ -9,176 +10,178 @@ import { Box } from '@mui/material';
 import '../styles/fullcalendar.css';
 
 interface AgendaCalendarProps {
-  currentDate: Date;
-  agendamentos: Agendamento[];
-  horariosDisponiveis: HorarioDisponivel[];
-  onSlotClick: (date: Date, horario?: HorarioDisponivel, agendamento?: Agendamento) => void;
-  viewMode?: 'month' | 'week';
+    currentDate: Date;
+    agendamentos: Agendamento[];
+    horariosDisponiveis: HorarioDisponivel[];
+    onSlotClick: (
+        date: Date,
+        horario?: HorarioDisponivel,
+        agendamento?: Agendamento
+    ) => void;
 }
 
 const statusColors = {
-  Pendente: '#ff9800', // Amarelo/Laranja
-  Confirmado: '#4caf50', // Verde
-  Disponivel: '#2196f3', // Azul
-  Cancelado: '#9e9e9e' // Cinza
+    Pendente: '#ff9800',
+    Confirmado: '#4caf50',
+    Cancelado: '#9e9e9e',
+    Disponivel: '#2196f3',
+    Bloqueado: '#cfd8dc'
 };
 
 const AgendaCalendar: React.FC<AgendaCalendarProps> = ({
-  currentDate,
-  agendamentos,
-  horariosDisponiveis,
-  onSlotClick,
-  viewMode = 'month'
+    currentDate,
+    agendamentos,
+    horariosDisponiveis,
+    onSlotClick
 }) => {
-  const calendarRef = useRef<FullCalendar>(null);
+    const calendarRef = useRef<FullCalendar>(null);
 
-  // Converte agendamentos para eventos do FullCalendar
-  const eventosAgendamentos = useMemo(() => {
-    return agendamentos.map((agendamento): EventInput => {
-      if (!agendamento.dataHoraInicio) {
-        return {
-          id: agendamento.id,
-          title: `${agendamento.nomeCliente} - ${agendamento.servicoNome || 'Serviço'}`,
-          start: new Date().toISOString(),
-          backgroundColor: statusColors[agendamento.status] || statusColors.Pendente,
-          borderColor: statusColors[agendamento.status] || statusColors.Pendente,
-          extendedProps: {
-            tipo: 'agendamento',
-            agendamento
-          }
-        };
-      }
+    // 🔐 Verifica conflito de horário
+    const temConflito = (inicio: Date, fim: Date) => {
+        return agendamentos.some(a => {
+            if (!a.dataHoraInicio) return false;
 
-      const inicio = new Date(agendamento.dataHoraInicio);
-      const fim = agendamento.dataHoraFim ? new Date(agendamento.dataHoraFim) : new Date(inicio.getTime() + 30 * 60000);
-      const hora = inicio.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            const inicioExistente = new Date(a.dataHoraInicio);
+            const fimExistente = a.dataHoraFim
+                ? new Date(a.dataHoraFim)
+                : new Date(inicioExistente.getTime() + 30 * 60000);
 
-      return {
-        id: agendamento.id,
-        title: `${hora} - ${agendamento.nomeCliente}`,
-        start: inicio.toISOString(),
-        end: fim.toISOString(),
-        backgroundColor: statusColors[agendamento.status] || statusColors.Pendente,
-        borderColor: statusColors[agendamento.status] || statusColors.Pendente,
-        extendedProps: {
-          tipo: 'agendamento',
-          agendamento,
-          hora,
-          servicoNome: agendamento.servicoNome
-        }
-      };
-    });
-  }, [agendamentos]);
-
-  // Converte horários disponíveis para eventos do FullCalendar (apenas alguns para não poluir)
-  const eventosHorarios = useMemo(() => {
-    // Mostra apenas alguns horários disponíveis por dia para não poluir o calendário
-    const horariosPorDia = new Map<string, HorarioDisponivel[]>();
-    
-    horariosDisponiveis.forEach(horario => {
-      if (horario.status === 'Disponivel') {
-        const data = new Date(horario.dataHoraInicio);
-        const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`;
-        
-        if (!horariosPorDia.has(chave)) {
-          horariosPorDia.set(chave, []);
-        }
-        
-        const horariosDoDia = horariosPorDia.get(chave)!;
-        if (horariosDoDia.length < 3) {
-          horariosDoDia.push(horario);
-        }
-      }
-    });
-
-    const eventos: EventInput[] = [];
-    horariosPorDia.forEach((horarios, chave) => {
-      horarios.forEach(horario => {
-        const inicio = new Date(horario.dataHoraInicio);
-        const fim = new Date(horario.dataHoraFim);
-        const hora = inicio.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-        eventos.push({
-          id: horario.id,
-          title: `${hora} - Disponível`,
-          start: inicio.toISOString(),
-          end: fim.toISOString(),
-          backgroundColor: statusColors.Disponivel,
-          borderColor: statusColors.Disponivel,
-          display: 'block',
-          extendedProps: {
-            tipo: 'horario',
-            horario,
-            hora
-          }
+            return inicio < fimExistente && fim > inicioExistente;
         });
-      });
-    });
+    };
 
-    return eventos;
-  }, [horariosDisponiveis]);
+    // 🟢 Agendamentos
+    const eventosAgendamentos = useMemo(() => {
+        return agendamentos
+            .filter(a => a.dataHoraInicio)
+            .map((agendamento): EventInput => {
+                const inicio = new Date(agendamento.dataHoraInicio!);
+                const fim = agendamento.dataHoraFim
+                    ? new Date(agendamento.dataHoraFim)
+                    : new Date(inicio.getTime() + 30 * 60000);
 
-  const eventos = useMemo(() => {
-    return [...eventosAgendamentos, ...eventosHorarios];
-  }, [eventosAgendamentos, eventosHorarios]);
+                return {
+                    id: `ag-${agendamento.id}`,
+                    title: `${agendamento.nomeCliente}`,
+                    start: inicio,
+                    end: fim,
+                    backgroundColor:
+                        statusColors[agendamento.status] ?? statusColors.Pendente,
+                    borderColor:
+                        statusColors[agendamento.status] ?? statusColors.Pendente,
+                    extendedProps: {
+                        tipo: 'agendamento',
+                        agendamento
+                    }
+                };
+            });
+    }, [agendamentos]);
 
-  // Atualiza a data do calendário quando currentDate muda
-  useEffect(() => {
-    if (calendarRef.current) {
-      const calendarApi = calendarRef.current.getApi();
-      calendarApi.gotoDate(currentDate);
-    }
-  }, [currentDate]);
+    // 🔵 Horários disponíveis
+    const eventosHorarios = useMemo(() => {
+        return horariosDisponiveis
+            .filter(h => h.status === 'Disponivel')
+            .map((horario): EventInput => {
+                const inicio = new Date(horario.dataHoraInicio);
+                const fim = new Date(horario.dataHoraFim);
 
-  const handleEventClick = (info: any) => {
-    const { extendedProps } = info.event;
-    
-    if (extendedProps.tipo === 'agendamento') {
-      const agendamento = extendedProps.agendamento as Agendamento;
-      const date = new Date(info.event.start);
-      onSlotClick(date, undefined, agendamento);
-    } else if (extendedProps.tipo === 'horario') {
-      const horario = extendedProps.horario as HorarioDisponivel;
-      const date = new Date(info.event.start);
-      onSlotClick(date, horario);
-    }
-  };
+                const conflito = temConflito(inicio, fim);
 
-  const handleDateClick = (info: any) => {
-    const date = new Date(info.date);
-    onSlotClick(date);
-  };
+                return {
+                    id: `hr-${horario.id}`,
+                    title: conflito ? 'Indisponível' : 'Disponível',
+                    start: inicio,
+                    end: fim,
+                    backgroundColor: conflito
+                        ? statusColors.Bloqueado
+                        : statusColors.Disponivel,
+                    borderColor: conflito
+                        ? statusColors.Bloqueado
+                        : statusColors.Disponivel,
+                    display: 'block',
+                    classNames: conflito
+                        ? ['evento-bloqueado']
+                        : ['evento-disponivel'],
+                    extendedProps: {
+                        tipo: 'horario',
+                        horario,
+                        bloqueado: conflito
+                    }
+                };
+            });
+    }, [horariosDisponiveis, agendamentos]);
 
-  return (
-    <Box sx={{ p: 2 }}>
-      <FullCalendar
-        ref={calendarRef}
-        plugins={[dayGridPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
-        locale={ptBrLocale}
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth'
-        }}
-        events={eventos}
-        eventClick={handleEventClick}
-        dateClick={handleDateClick}
-        editable={false}
-        selectable={false}
-        dayMaxEvents={5}
-        moreLinkText="mais"
-        height="auto"
-        eventDisplay="block"
-        eventTextColor="#fff"
-        eventTimeFormat={{
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        }}
-      />
-    </Box>
-  );
+    const eventos = useMemo(
+        () => [...eventosHorarios, ...eventosAgendamentos],
+        [eventosHorarios, eventosAgendamentos]
+    );
+
+    useEffect(() => {
+        if (calendarRef.current) {
+            calendarRef.current.getApi().gotoDate(currentDate);
+        }
+    }, [currentDate]);
+
+    const handleEventClick = (info: any) => {
+        const { extendedProps } = info.event;
+        const date = new Date(info.event.start);
+
+        //const usuario = authService.getUsuario();
+        //const podeAbrir = usuario?.tipo === "Admin" || usuario?.tipo === "Profissional";
+
+        //if (!podeAbrir) return;
+
+        if (extendedProps.tipo === 'agendamento') {
+            onSlotClick(date, undefined, extendedProps.agendamento);
+            return;
+        }
+
+        if (extendedProps.tipo === 'horario' && !extendedProps.bloqueado) {
+            onSlotClick(date, extendedProps.horario);
+        }
+    };
+
+    return (
+        <Box
+            sx={{
+                p: 3,
+                backgroundColor: '#f5f7fa',
+                borderRadius: 4,
+                boxShadow: '0 4px 24px rgba(0,0,0,0.05)'
+            }}
+        >
+            <FullCalendar
+                ref={calendarRef}
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView="timeGridWeek"
+                locale={ptBrLocale}
+                headerToolbar={{
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                }}
+                buttonText={{
+                    today: 'Hoje',
+                    month: 'Mês',
+                    week: 'Semana',
+                    day: 'Dia'
+                }}
+                events={eventos}
+                eventClick={handleEventClick}
+                allDaySlot={false}
+                slotMinTime="08:00:00"
+                slotMaxTime="18:00:00"
+                slotDuration="00:30:00"
+                nowIndicator={true}
+                height="auto"
+                eventOverlap={false}
+                selectable={false}
+                dayMaxEvents={true}
+                moreLinkText="ver mais"
+                eventTextColor="#fff"
+            />
+        </Box>
+    );
 };
 
 export default AgendaCalendar;

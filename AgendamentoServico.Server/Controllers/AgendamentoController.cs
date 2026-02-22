@@ -1,5 +1,8 @@
 using Agendamento.Api.Services;
+using AgendamentoServico.Server.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Agendamento.Api.Controllers;
@@ -64,4 +67,15 @@ public class AgendamentoController : ControllerBase
         if (!success) return NotFound();
         return NoContent();
     }
+
+    [Authorize]
+    [HttpPut("{id}/confirmar")]
+    public async Task<IActionResult> Confirmar(Guid id)
+    {
+
+        var sucess = await _service.ConfirmAsync(id);
+
+        return Ok();
+    }
+
 }

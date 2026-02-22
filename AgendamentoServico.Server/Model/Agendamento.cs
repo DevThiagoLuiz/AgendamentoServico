@@ -21,17 +21,21 @@ namespace AgendamentoServico.Server.Model
         [Required]
         public string TelefoneCliente { get; set; } = null!;
 
+        // 🔑 FK obrigatória
         [Required]
         public Guid HorarioDisponivelId { get; set; }
 
+        // 🔗 Navegação (SEM Required)
         [ForeignKey(nameof(HorarioDisponivelId))]
-        public HorarioDisponivel Horario { get; set; } = null!;
+        public HorarioDisponivel? Horario { get; set; }
 
+        // 🔑 FK obrigatória
         [Required]
         public Guid ServicoId { get; set; }
 
+        // 🔗 Navegação (SEM Required)
         [ForeignKey(nameof(ServicoId))]
-        public Servico Servico { get; set; } = null!;
+        public Servico? Servico { get; set; }
 
         [Required]
         public StatusAgendamento Status { get; set; } = StatusAgendamento.Pendente;
