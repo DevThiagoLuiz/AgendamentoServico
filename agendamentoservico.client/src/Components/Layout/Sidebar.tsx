@@ -20,6 +20,7 @@ import {
     Login as LoginIcon,
     Logout as LogoutIcon
 } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 
 const drawerWidth = 280;
 
@@ -37,14 +38,15 @@ const Sidebar: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // 🔹 lê diretamente do localStorage em cada render
     const token = localStorage.getItem('token');
-    const tipo = localStorage.getItem("tipo")?.replace(/['"]/g, '').trim();
+    const tipo = localStorage.getItem('tipo')?.replace(/['"]/g, '').trim();
 
-    // filtra itens com base em login/admin
+    // 🔹 filtra itens com base em login/admin
     const menuItems = allMenuItems.filter(item => {
-        if (item.authRequired && !token) return false; // se precisa de auth e não está logado, remove
-        if (item.adminOnly && tipo !== "Admin") return false; // se precisa de admin e não é admin, remove
-        if (item.guestOnly && token) return false; // se é só para convidados e já está logado, remove
+        if (item.authRequired && !token) return false;
+        if (item.adminOnly && tipo !== 'Admin') return false;
+        if (item.guestOnly && token) return false;
         return true;
     });
 
@@ -52,6 +54,7 @@ const Sidebar: React.FC = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
         localStorage.removeItem('tipo');
+        toast.warning("Deslogado com sucesso!")
         navigate('/login');
     };
 
@@ -75,9 +78,11 @@ const Sidebar: React.FC = () => {
                     AgendamentoServiço
                 </Typography>
             </Box>
+
             <Divider sx={{ borderColor: '#334155' }} />
+
             <List sx={{ pt: 2, flexGrow: 1 }}>
-                {menuItems.map((item) => (
+                {menuItems.map(item => (
                     <ListItem key={item.text} disablePadding>
                         <ListItemButton
                             onClick={() => navigate(item.path)}
@@ -94,15 +99,17 @@ const Sidebar: React.FC = () => {
                             <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
                                 {item.icon}
                             </ListItemIcon>
+
                             <ListItemText primary={item.text} />
                         </ListItemButton>
                     </ListItem>
                 ))}
 
-                {/* Botão de Logout */}
+                {/* Logout */}
                 {token && (
                     <>
                         <Divider sx={{ borderColor: '#334155', my: 1 }} />
+
                         <ListItem disablePadding>
                             <ListItemButton
                                 onClick={handleLogout}
@@ -113,6 +120,7 @@ const Sidebar: React.FC = () => {
                                 <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
                                     <LogoutIcon />
                                 </ListItemIcon>
+
                                 <ListItemText primary="Logout" />
                             </ListItemButton>
                         </ListItem>

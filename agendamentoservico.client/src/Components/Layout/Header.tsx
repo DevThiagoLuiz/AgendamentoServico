@@ -49,7 +49,6 @@ const Header: React.FC<HeaderProps> = ({ currentDate, onDateChange, onTodayClick
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-          AgendamentoServiço
         </Typography>
         
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

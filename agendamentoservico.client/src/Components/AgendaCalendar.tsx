@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/preserve-manual-memoization */
 import React, { useMemo, useRef, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -5,28 +7,10 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import type { EventInput } from '@fullcalendar/core';
-import type { Agendamento, HorarioDisponivel } from '../types';
+import { getStatusColorAgendamento, statusColors, type AgendaCalendarProps } from '../types';
 import { Box } from '@mui/material';
 import '../styles/fullcalendar.css';
 
-interface AgendaCalendarProps {
-    currentDate: Date;
-    agendamentos: Agendamento[];
-    horariosDisponiveis: HorarioDisponivel[];
-    onSlotClick: (
-        date: Date,
-        horario?: HorarioDisponivel,
-        agendamento?: Agendamento
-    ) => void;
-}
-
-const statusColors = {
-    Pendente: '#ff9800',
-    Confirmado: '#4caf50',
-    Cancelado: '#9e9e9e',
-    Disponivel: '#2196f3',
-    Bloqueado: '#cfd8dc'
-};
 
 const AgendaCalendar: React.FC<AgendaCalendarProps> = ({
     currentDate,
@@ -35,6 +19,9 @@ const AgendaCalendar: React.FC<AgendaCalendarProps> = ({
     onSlotClick
 }) => {
     const calendarRef = useRef<FullCalendar>(null);
+
+ 
+
 
     // 🔐 Verifica conflito de horário
     const temConflito = (inicio: Date, fim: Date) => {
@@ -60,15 +47,14 @@ const AgendaCalendar: React.FC<AgendaCalendarProps> = ({
                     ? new Date(agendamento.dataHoraFim)
                     : new Date(inicio.getTime() + 30 * 60000);
 
+                console.log(agendamento.status);
                 return {
                     id: `ag-${agendamento.id}`,
                     title: `${agendamento.nomeCliente}`,
                     start: inicio,
                     end: fim,
-                    backgroundColor:
-                        statusColors[agendamento.status] ?? statusColors.Pendente,
-                    borderColor:
-                        statusColors[agendamento.status] ?? statusColors.Pendente,
+                    backgroundColor: getStatusColorAgendamento(agendamento.status),
+                    borderColor: getStatusColorAgendamento(agendamento.status),
                     extendedProps: {
                         tipo: 'agendamento',
                         agendamento

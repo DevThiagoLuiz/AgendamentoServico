@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import React, { useEffect, useState } from 'react';
 import {
     Dialog,
@@ -11,7 +12,7 @@ import {
     Typography,
     Chip
 } from '@mui/material';
-import type { Agendamento, HorarioDisponivel, Servico } from '../types';
+import { getStatusColorAgendamento, type Agendamento, type HorarioDisponivel, type Servico } from '../types';
 import { servicoService, authService } from '../services/apiService';
 
 interface AgendamentoModalProps {
@@ -46,7 +47,7 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
     const [observacoes, setObservacoes] = useState('');
 
     useEffect(() => {
-        if (!open || !podeAbrir) return;
+        if (!open) return;
 
         const loadServicos = async () => {
             const data = await servicoService.getAll();
@@ -72,22 +73,7 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
         }
     }, [agendamento, horario]);
 
-    const getStatusColor = () => {
-        switch (agendamento?.status) {
-            case "Pendente":
-                return "warning";
-            case "Confirmado":
-                return "success";
-            case "Cancelado":
-                return "error";
-            default:
-                return "default";
-        }
-    };
-
     const handleSubmit = async () => {
-        if (!isAdmin) return;
-
         if (!nome || !telefone || !servicoId) {
             alert('Preencha todos os campos obrigatórios');
             return;
@@ -106,20 +92,20 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
     };
 
     const handleConfirm = async () => {
-        if (isAdmin && agendamento && onConfirm) {
+        if (agendamento && onConfirm) {
             await onConfirm(agendamento.id);
             onClose();
         }
     };
 
     const handleCancel = async () => {
-        if (isAdmin && agendamento && onCancel) {
+        if (agendamento && onCancel) {
             await onCancel(agendamento.id);
             onClose();
         }
     };
 
-    if (!podeAbrir) return null;
+    //if (!podeAbrir) return null;
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -129,14 +115,6 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
 
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-
-                    {agendamento && (
-                        <Chip
-                            label={agendamento.status}
-                            color={getStatusColor()}
-                            sx={{ alignSelf: "flex-start" }}
-                        />
-                    )}
 
                     {horario && (
                         <Typography variant="body2" color="text.secondary">
@@ -150,7 +128,6 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
                         required
                         value={nome}
                         onChange={(e) => setNome(e.target.value)}
-                        disabled={!isAdmin}
                     />
 
                     <TextField
@@ -159,7 +136,6 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
                         required
                         value={telefone}
                         onChange={(e) => setTelefone(e.target.value)}
-                        disabled={!isAdmin}
                     />
 
                     <TextField
@@ -167,7 +143,6 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
                         fullWidth
                         value={cpf}
                         onChange={(e) => setCpf(e.target.value)}
-                        disabled={!isAdmin}
                     />
 
                     <TextField
@@ -177,7 +152,6 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
                         required
                         value={servicoId}
                         onChange={(e) => setServicoId(e.target.value)}
-                        disabled={!isAdmin}
                     >
                         {servicos.map((s) => (
                             <MenuItem key={s.id} value={s.id}>
@@ -193,7 +167,6 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
                         rows={3}
                         value={observacoes}
                         onChange={(e) => setObservacoes(e.target.value)}
-                        disabled={!isAdmin}
                     />
                 </Box>
             </DialogContent>
@@ -201,13 +174,13 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
             <DialogActions>
                 <Button onClick={onClose}>Fechar</Button>
 
-                {isAdmin && !agendamento && (
+                {!agendamento && (
                     <Button onClick={handleSubmit} variant="contained">
                         Criar
                     </Button>
                 )}
 
-                {isAdmin && agendamento?.status === "Pendente" && (
+                {agendamento?.status === "Disponivel" && (
                     <>
                         <Button onClick={handleCancel} color="error">
                             Cancelar

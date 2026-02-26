@@ -43,6 +43,10 @@ namespace AgendamentoServico.Server.Model
         public string? Observacoes { get; set; }
 
         public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
+
+        public string? StripeSessionId { get; set; }
+
+        public bool Pago { get; set; } = false;
     }
 
 }

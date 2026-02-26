@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Servico {
   id: string;
   nome: string;
@@ -54,3 +55,39 @@ export interface Usuario {
   nome: string;
   role: 'cliente' | 'funcionario' | 'admin';
 }
+
+export interface AgendaCalendarProps {
+    currentDate: Date;
+    agendamentos: Agendamento[];
+    horariosDisponiveis: HorarioDisponivel[];
+    onSlotClick: (
+        date: Date,
+        horario?: HorarioDisponivel,
+        agendamento?: Agendamento
+    ) => void;
+}
+
+export const statusColors = {
+    Pendente: '#ff9800',
+    Confirmado: '#4caf50',
+    Cancelado: '#9e9e9e',
+    Disponivel: '#2196f3',
+    Bloqueado: '#cfd8dc'
+};
+
+
+export const getStatusColorAgendamento = (status: any) => {
+    switch (status) {
+        case 1:
+            return statusColors.Confirmado;
+
+        case 2:
+            return statusColors.Cancelado;
+
+        case 0:
+            return statusColors.Pendente;
+
+        default:
+            return statusColors.Pendente;
+    }
+};

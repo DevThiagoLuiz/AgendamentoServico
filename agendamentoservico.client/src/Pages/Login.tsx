@@ -10,7 +10,9 @@ import {
     CircularProgress
 } from "@mui/material";
 import { authService } from "../services/apiService";
-import { toast} from 'react-toastify';
+import { toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
+
 
 const Login: React.FC = () => {
 
@@ -19,14 +21,16 @@ const Login: React.FC = () => {
     const [erro, setErro] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const navigate = useNavigate();
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErro("");
         setLoading(true);
 
         try {
-            authService.login(email, senha);
-
+            await authService.login(email, senha);
+            navigate("/");
         } catch (error: any) {
             if (error.response?.status === 401) {
                 setErro("Email ou senha inválidos.");

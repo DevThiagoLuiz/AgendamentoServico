@@ -428,6 +428,24 @@ export const agendamentoService = {
             return null;
         }
     }
+
+};
+
+/* ============================= */
+/*          PAGAMENTO            */
+/* ============================= */
+
+export const pagamentoService = {
+
+    criarSessao: async (agendamentoId: string): Promise<string | null> => {
+        try {
+            const { data } = await api.post(`/pagamento/criar-sessao/${agendamentoId}`);
+            return data.url;
+        } catch {
+            toast.error("Erro ao iniciar pagamento");
+            return null;
+        }
+    }
 };
 
 export default api;

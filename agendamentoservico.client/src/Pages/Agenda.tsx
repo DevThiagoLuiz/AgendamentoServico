@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/immutability */
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Box, Typography } from '@mui/material';
 import AgendaCalendar from '../Components/AgendaCalendar';
 import AgendamentoModal from '../Components/AgendamentoModal';
 import type { Agendamento, HorarioDisponivel } from '../types';
-import { agendamentoService, horarioService, servicoService, profissionalService } from '../services/apiService';
+import { agendamentoService, horarioService, servicoService, profissionalService, pagamentoService } from '../services/apiService';
 
 const Agenda: React.FC = () => {
   const { currentDate } = useOutletContext<{ currentDate: Date }>();
@@ -76,10 +77,20 @@ const Agenda: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleSave = async (data: Partial<Agendamento>) => {
-    await agendamentoService.create(data);
-    await loadData();
-  };
+    const handleSave = async (data: Partial<Agendamento>) => {
+
+        const agendamento = await agendamentoService.create(data);
+
+        if (!agendamento) return;
+
+        const urlPagamento = await pagamentoService.criarSessao(agendamento.id);
+
+        if (!urlPagamento) return;
+
+        // redireciona para Stripe
+        window.location.href = urlPagamento;
+
+    };
 
   return (
     <Box>
