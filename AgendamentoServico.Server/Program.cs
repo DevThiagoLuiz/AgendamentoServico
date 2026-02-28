@@ -1,5 +1,6 @@
 using Agendamento.Api.Data;
 using Agendamento.Api.Services;
+using Agendamento.Api.Services.Background;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -101,12 +102,15 @@ builder.Services.AddCors(options =>
         });
 });
 
+
+
 builder.Services.AddScoped<ProfissionalService>();
 builder.Services.AddScoped<HorarioDisponivelService>();
 builder.Services.AddScoped<ServicoService>();
 builder.Services.AddScoped<AgendamentoService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<AgendamentoCleanupService>();
 
 var app = builder.Build();
 

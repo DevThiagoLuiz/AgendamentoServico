@@ -92,4 +92,21 @@ public class AgendamentoService
         await _context.SaveChangesAsync();
         return true;
     }
+
+
+    public async Task LiberarHorarioAsync(string StripeSessionId)
+    {
+        var agendamento = await _context.Agendamentos
+            .Include(a => a.Horario)
+            .FirstOrDefaultAsync(a => a.StripeSessionId == StripeSessionId);
+
+        var horarioDisponivel = await _context.Horarios
+            .FirstOrDefaultAsync(h => h.Id == agendamento!.HorarioDisponivelId);
+
+        if (horarioDisponivel != null)
+        {
+            horarioDisponivel.Status = "Disponivel";
+        }
+    }
+
 }

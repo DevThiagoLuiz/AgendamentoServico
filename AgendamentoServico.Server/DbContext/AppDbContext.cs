@@ -1,4 +1,5 @@
 ﻿using Agendamento.Api;
+using Agendamento.Api.Services;
 using AgendamentoServico.Server.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,15 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
     {
+    }
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        // índice único para impedir duplicação de horário
+        builder.Entity<AgendamentoServico.Server.Model.Agendamento>()
+              .HasIndex(a => a.HorarioDisponivelId)
+              .IsUnique();
     }
 
     public DbSet<Usuario> Usuarios => Set<Usuario>();

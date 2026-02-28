@@ -41,7 +41,7 @@ public class PagamentoController : ControllerBase
         var options = new SessionCreateOptions
         {
             Mode = "payment",
-
+            ExpiresAt = DateTime.UtcNow.AddMinutes(5),
             SuccessUrl = _configuration["Stripe:SuccessUrl"],
             CancelUrl = _configuration["Stripe:CancelUrl"],
 

@@ -51,6 +51,7 @@ public class StripeWebhookController : ControllerBase
             return BadRequest();
         }
 
+        // PAGAMENTO CONFIRMADO
         if (stripeEvent.Type == "checkout.session.completed")
         {
             var session = stripeEvent.Data.Object as Session;
@@ -60,21 +61,56 @@ public class StripeWebhookController : ControllerBase
 
             var stripeSessionId = session.Id;
 
-            Console.WriteLine($"SessionId: {stripeSessionId}");
+            Console.WriteLine($"SessionId COMPLETED: {stripeSessionId}");
+
+            // importante garantir que foi pago mesmo
+            if (session.PaymentStatus == "paid")
+            {
+                var agendamento = await _context.Agendamentos
+                    .FirstOrDefaultAsync(a => a.StripeSessionId == stripeSessionId);
+
+                if (agendamento != null)
+                {
+                    if (!agendamento.Pago)
+                    {
+                        agendamento.Pago = true;
+                        agendamento.Status = StatusAgendamento.Confirmado;
+
+                        await _agendamentoService.ConfirmAsync(agendamento.Id);
+
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
+        }
+
+        // PAGAMENTO NÃO CONCLUÍDO / EXPIRADO
+        else if (stripeEvent.Type == "checkout.session.expired"
+      || stripeEvent.Type == "checkout.session.async_payment_failed")
+        {
+            var session = stripeEvent.Data.Object as Session;
+
+            if (session == null)
+                return BadRequest();
+
+            var stripeSessionId = session.Id;
+
+            Console.WriteLine($"SessionId EXPIRED: {stripeSessionId}");
 
             var agendamento = await _context.Agendamentos
                 .FirstOrDefaultAsync(a => a.StripeSessionId == stripeSessionId);
 
             if (agendamento != null)
             {
-                agendamento.Pago = true;
-                agendamento.Status = StatusAgendamento.Confirmado;
+                // liberar horário
+                await _agendamentoService.LiberarHorarioAsync(agendamento.StripeSessionId);
 
-                await _agendamentoService.ConfirmAsync(agendamento.Id);
+                // deletar agendamento
+                _context.Agendamentos.Remove(agendamento);
 
                 await _context.SaveChangesAsync();
 
-                Console.WriteLine($"Agendamento {agendamento.Id} atualizado!");
+                Console.WriteLine($"Agendamento {agendamento.Id} removido e horário liberado!");
             }
         }
 
