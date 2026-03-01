@@ -7,7 +7,8 @@ import {
     DialogActions,
     Button,
     TextField,
-    MenuItem
+    MenuItem,
+    Box
 } from "@mui/material";
 import type { HorarioDisponivel, Profissional } from "../types";
 import { profissionalService } from "../services/apiService";
@@ -90,16 +91,13 @@ const HorarioModal: React.FC<Props> = ({
                         <MenuItem value="Bloqueado">Bloqueado</MenuItem>
                     </TextField>
                 ) : (
-                    <>
+                    <Box component="form" sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
                         <TextField
                             select
                             label="Profissional"
                             fullWidth
                             value={profissionalId}
-                            onChange={(e) =>
-                                setProfissionalId(e.target.value)
-                            }
-                            sx={{ mb: 2 }}
+                            onChange={(e) => setProfissionalId(e.target.value)}
                         >
                             {profissionais.map((p) => (
                                 <MenuItem key={p.id} value={p.id}>
@@ -115,7 +113,6 @@ const HorarioModal: React.FC<Props> = ({
                             InputLabelProps={{ shrink: true }}
                             value={dataDia}
                             onChange={(e) => setDataDia(e.target.value)}
-                            sx={{ mb: 2 }}
                         />
 
                         <TextField
@@ -124,10 +121,7 @@ const HorarioModal: React.FC<Props> = ({
                             fullWidth
                             InputLabelProps={{ shrink: true }}
                             value={horaInicio}
-                            onChange={(e) =>
-                                setHoraInicio(e.target.value)
-                            }
-                            sx={{ mb: 2 }}
+                            onChange={(e) => setHoraInicio(e.target.value)}
                         />
 
                         <TextField
@@ -137,7 +131,6 @@ const HorarioModal: React.FC<Props> = ({
                             InputLabelProps={{ shrink: true }}
                             value={horaFim}
                             onChange={(e) => setHoraFim(e.target.value)}
-                            sx={{ mb: 2 }}
                         />
 
                         <TextField
@@ -145,11 +138,7 @@ const HorarioModal: React.FC<Props> = ({
                             label="Intervalo"
                             fullWidth
                             value={intervaloMinutos}
-                            onChange={(e) =>
-                                setIntervaloMinutos(
-                                    Number(e.target.value)
-                                )
-                            }
+                            onChange={(e) => setIntervaloMinutos(Number(e.target.value))}
                         >
                             <MenuItem value={15}>15 min</MenuItem>
                             <MenuItem value={30}>30 min</MenuItem>
@@ -157,7 +146,7 @@ const HorarioModal: React.FC<Props> = ({
                             <MenuItem value={90}>90 min</MenuItem>
                             <MenuItem value={120}>120 min</MenuItem>
                         </TextField>
-                    </>
+                    </Box>
                 )}
             </DialogContent>
 

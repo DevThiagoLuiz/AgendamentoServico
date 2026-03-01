@@ -8,10 +8,10 @@ import {
     TextField,
     FormControlLabel,
     Switch,
-    MenuItem
+    MenuItem,
+    Box
 } from "@mui/material";
 import type { Usuario, Profissional } from "../types";
-import { profissionalService } from "../services/apiService";
 
 interface Props {
     open: boolean;
@@ -19,7 +19,7 @@ interface Props {
     usuario: Usuario | null;
     onSave: (data: any) => void;
     isAdmin: boolean;
-    profissionais: Profissional[]; 
+    profissionais: Profissional[];
 }
 
 const UsuarioModal: React.FC<Props> = ({
@@ -74,77 +74,62 @@ const UsuarioModal: React.FC<Props> = ({
             </DialogTitle>
 
             <DialogContent sx={{ mt: 2 }}>
-                <TextField
-                    label="Nome"
-                    fullWidth
-                    sx={{ mb: 2 }}
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                />
+                <Box component="form" sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
+                    <TextField
+                        label="Nome"
+                        fullWidth
+                        value={nome}
+                        onChange={(e) => setNome(e.target.value)}
+                    />
 
-                <TextField
-                    label="Email"
-                    fullWidth
-                    sx={{ mb: 2 }}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
+                    <TextField
+                        label="Email"
+                        fullWidth
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
 
-                <TextField
-                    label="Senha"
-                    type="password"
-                    fullWidth
-                    sx={{ mb: 2 }}
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                />
+                    <TextField
+                        label="Senha"
+                        type="password"
+                        fullWidth
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                    />
 
-                {isAdmin && (
+                    {isAdmin && (
+                        <TextField
+                            select
+                            label="Tipo"
+                            fullWidth
+                            value={tipo}
+                            onChange={(e) => setTipo(e.target.value as "Admin" | "Profissional")}
+                        >
+                            <MenuItem value="Admin">Admin</MenuItem>
+                            <MenuItem value="Profissional">Profissional</MenuItem>
+                        </TextField>
+                    )}
+
                     <TextField
                         select
-                        label="Tipo"
+                        label="Funcionário vinculado"
                         fullWidth
-                        sx={{ mb: 2 }}
-                        value={tipo}
-                        onChange={(e) =>
-                            setTipo(e.target.value as "Admin" | "Profissional")
-                        }
+                        value={profissionalId}
+                        onChange={(e) => setProfissionalId(e.target.value)}
+                        sx={{ gridColumn: '1 / -1' }}
                     >
-                        <MenuItem value="Admin">Admin</MenuItem>
-                        <MenuItem value="Profissional">Profissional</MenuItem>
-                    </TextField>
-                )}
-
-                <TextField
-                    select
-                    label="Funcionário vinculado"
-                    fullWidth
-                    sx={{ mb: 2 }}
-                    value={profissionalId}
-                    onChange={(e) => setProfissionalId(e.target.value)}
-                >
-                    <MenuItem value="">
-                        Nenhum
-                    </MenuItem>
-
-                    {profissionais != null && profissionais
-                        .filter(p => p.ativo)
-                        .map((prof) => (
-                            <MenuItem key={prof.id} value={prof.id}>
-                                {prof.nome}
-                            </MenuItem>
+                        <MenuItem value="">Nenhum</MenuItem>
+                        {profissionais != null && profissionais.filter((p) => p.ativo).map((prof) => (
+                            <MenuItem key={prof.id} value={prof.id}>{prof.nome}</MenuItem>
                         ))}
-                </TextField>
+                    </TextField>
 
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={ativo}
-                            onChange={(e) => setAtivo(e.target.checked)}
-                        />
-                    }
-                    label="Ativo"
-                />
+                    <FormControlLabel
+                        control={<Switch checked={ativo} onChange={(e) => setAtivo(e.target.checked)} />}
+                        label="Ativo"
+                        sx={{ gridColumn: '1 / -1' }}
+                    />
+                </Box>
             </DialogContent>
 
             <DialogActions>

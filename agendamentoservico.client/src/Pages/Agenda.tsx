@@ -26,13 +26,13 @@ const Agenda: React.FC = () => {
       servicoService.getAll(),
       profissionalService.getAll()
     ]);
-    
+
     // Enriquecer agendamentos com dados de serviços e profissionais
     const agendamentosEnriquecidos = agendamentosData.map(ag => {
       const servico = servicosData.find(s => s.id === ag.servicoId);
       const horario = horariosData.find(h => h.id === ag.horarioDisponivelId);
       const profissional = horario ? profissionaisData.find(p => p.id === horario.profissionalId) : null;
-      
+
       return {
         ...ag,
         servicoNome: servico?.nome,
@@ -41,9 +41,9 @@ const Agenda: React.FC = () => {
         dataHoraFim: horario?.dataHoraFim || ag.dataHoraFim
       };
     });
-    
+
     setAgendamentos(agendamentosEnriquecidos);
-    
+
     // Enriquecer horários com nomes de profissionais
     const horariosEnriquecidos = horariosData.map(h => {
       const profissional = profissionaisData.find(p => p.id === h.profissionalId);
@@ -52,7 +52,7 @@ const Agenda: React.FC = () => {
         profissionalNome: profissional?.nome
       };
     });
-    
+
     setHorariosDisponiveis(horariosEnriquecidos);
   };
 
@@ -77,34 +77,36 @@ const Agenda: React.FC = () => {
     setModalOpen(true);
   };
 
-    const handleSave = async (data: Partial<Agendamento>) => {
+  const handleSave = async (data: Partial<Agendamento>) => {
 
-        const agendamento = await agendamentoService.create(data);
+    const agendamento = await agendamentoService.create(data);
 
-        if (!agendamento) return;
+    if (!agendamento) return;
 
-        const urlPagamento = await pagamentoService.criarSessao(agendamento.id);
+    const urlPagamento = await pagamentoService.criarSessao(agendamento.id);
 
-        if (!urlPagamento) return;
+    if (!urlPagamento) return;
 
-        // redireciona para Stripe
-        window.location.href = urlPagamento;
+    // redireciona para Stripe
+    window.location.href = urlPagamento;
 
-    };
+  };
 
   return (
     <Box>
       <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 'bold' }}>
         Agenda
       </Typography>
-      
-      <AgendaCalendar
-        currentDate={currentDate}
-        agendamentos={agendamentos}
-        horariosDisponiveis={horariosDisponiveis}
-        onSlotClick={handleSlotClick}
-      />
-      
+
+      <Box sx={{ width: '100%', borderRadius: 2, overflow: 'hidden' }}>
+        <AgendaCalendar
+          currentDate={currentDate}
+          agendamentos={agendamentos}
+          horariosDisponiveis={horariosDisponiveis}
+          onSlotClick={handleSlotClick}
+        />
+      </Box>
+
       <AgendamentoModal
         open={modalOpen}
         onClose={() => {

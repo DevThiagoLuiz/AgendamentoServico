@@ -114,60 +114,66 @@ const AgendamentoModal: React.FC<AgendamentoModalProps> = ({
             </DialogTitle>
 
             <DialogContent>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+                <Box sx={{ pt: 1 }}>
 
                     {horario && (
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                             Horário: {new Date(horario.dataHoraInicio).toLocaleString('pt-BR')}
                         </Typography>
                     )}
 
-                    <TextField
-                        label="Nome do Cliente"
-                        fullWidth
-                        required
-                        value={nome}
-                        onChange={(e) => setNome(e.target.value)}
-                    />
+                    <Box component="form" sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
 
-                    <TextField
-                        label="Telefone"
-                        fullWidth
-                        required
-                        value={telefone}
-                        onChange={(e) => setTelefone(e.target.value)}
-                    />
+                        <TextField
+                            label="Nome do Cliente"
+                            fullWidth
+                            required
+                            value={nome}
+                            onChange={(e) => setNome(e.target.value)}
+                        />
 
-                    <TextField
-                        label="CPF (opcional)"
-                        fullWidth
-                        value={cpf}
-                        onChange={(e) => setCpf(e.target.value)}
-                    />
+                        <TextField
+                            label="Telefone"
+                            fullWidth
+                            required
+                            value={telefone}
+                            onChange={(e) => setTelefone(e.target.value)}
+                        />
 
-                    <TextField
-                        label="Serviço"
-                        select
-                        fullWidth
-                        required
-                        value={servicoId}
-                        onChange={(e) => setServicoId(e.target.value)}
-                    >
-                        {servicos.map((s) => (
-                            <MenuItem key={s.id} value={s.id}>
-                                {s.nome} - R$ {s.preco.toFixed(2)} ({s.duracaoMinutos}min)
-                            </MenuItem>
-                        ))}
-                    </TextField>
+                        <TextField
+                            label="CPF (opcional)"
+                            fullWidth
+                            value={cpf}
+                            onChange={(e) => setCpf(e.target.value)}
+                        />
 
-                    <TextField
-                        label="Observações"
-                        fullWidth
-                        multiline
-                        rows={3}
-                        value={observacoes}
-                        onChange={(e) => setObservacoes(e.target.value)}
-                    />
+                        <TextField
+                            label="Serviço"
+                            select
+                            fullWidth
+                            required
+                            value={servicoId}
+                            onChange={(e) => setServicoId(e.target.value)}
+                        >
+                            {servicos.map((s) => (
+                                <MenuItem key={s.id} value={s.id}>
+                                    {s.nome} - R$ {s.preco.toFixed(2)} ({s.duracaoMinutos}min)
+                                </MenuItem>
+                            ))}
+                        </TextField>
+
+                        <TextField
+                            label="Observações"
+                            fullWidth
+                            multiline
+                            rows={3}
+                            sx={{ gridColumn: { xs: '1 / -1' } }}
+                            value={observacoes}
+                            onChange={(e) => setObservacoes(e.target.value)}
+                        />
+
+                    </Box>
+
                 </Box>
             </DialogContent>
 

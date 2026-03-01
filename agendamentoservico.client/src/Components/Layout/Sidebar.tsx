@@ -1,16 +1,17 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+
 import {
-    Drawer,
+    Box,
     List,
     ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
-    Box,
     Typography,
     Divider
 } from '@mui/material';
+
 import {
     CalendarToday,
     Build,
@@ -18,116 +19,183 @@ import {
     Timelapse,
     Person,
     Login as LoginIcon,
-    Logout as LogoutIcon
+    Logout as LogoutIcon,
+    Dashboard as DashboardIcon
 } from '@mui/icons-material';
+
 import { toast } from 'react-toastify';
 
-const drawerWidth = 280;
+interface SidebarProps {
+    onNavigate?: () => void;
+}
 
-// todos os itens possíveis
+const drawerWidth = 260;
+
 const allMenuItems = [
     { text: 'Agenda', icon: <CalendarToday />, path: '/' },
+
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', authRequired: true },
+
     { text: 'Serviços', icon: <Build />, path: '/servicos', authRequired: true },
+
     { text: 'Funcionários', icon: <People />, path: '/funcionarios', authRequired: true },
+
     { text: 'Horários', icon: <Timelapse />, path: '/horarios', authRequired: true },
+
     { text: 'Usuários', icon: <Person />, path: '/usuarios', authRequired: true, adminOnly: true },
+
     { text: 'Login', icon: <LoginIcon />, path: '/login', guestOnly: true }
 ];
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
+
     const navigate = useNavigate();
     const location = useLocation();
 
-    // 🔹 lê diretamente do localStorage em cada render
     const token = localStorage.getItem('token');
-    const tipo = localStorage.getItem('tipo')?.replace(/['"]/g, '').trim();
 
-    // 🔹 filtra itens com base em login/admin
+    const tipo = localStorage
+        .getItem('tipo')
+        ?.replace(/['"]/g, '')
+        .trim();
+
     const menuItems = allMenuItems.filter(item => {
+
         if (item.authRequired && !token) return false;
+
         if (item.adminOnly && tipo !== 'Admin') return false;
+
         if (item.guestOnly && token) return false;
+
         return true;
     });
 
+    const handleNavigate = (path: string) => {
+
+        navigate(path);
+
+        if (onNavigate)
+            onNavigate();
+    };
+
     const handleLogout = () => {
+
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
         localStorage.removeItem('tipo');
-        toast.warning("Deslogado com sucesso!")
+
+        toast.warning("Deslogado com sucesso!");
+
         navigate('/login');
+
+        if (onNavigate)
+            onNavigate();
     };
 
     return (
-        <Drawer
-            variant="permanent"
-            sx={{
-                width: drawerWidth,
-                flexShrink: 0,
-                '& .MuiDrawer-paper': {
-                    width: drawerWidth,
-                    boxSizing: 'border-box',
-                    backgroundColor: '#1e293b',
-                    color: '#e2e8f0',
-                    borderRight: '1px solid #334155'
-                }
-            }}
-        >
-            <Box sx={{ p: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#60a5fa' }}>
-                    AgendamentoServiço
+
+        <Box sx={{ width: drawerWidth, height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'background.paper', color: 'text.primary', borderRight: '1px solid rgba(0,0,0,0.06)' }}>
+
+            {/* LOGO */}
+            <Box
+                sx={{
+                    p: 3,
+                    borderBottom: '1px solid #1e293b'
+                }}
+            >
+
+                <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: 0.5, color: 'primary.main' }}>
+                    Agendamento
                 </Typography>
+
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    Painel administrativo
+                </Typography>
+
             </Box>
 
-            <Divider sx={{ borderColor: '#334155' }} />
 
-            <List sx={{ pt: 2, flexGrow: 1 }}>
-                {menuItems.map(item => (
-                    <ListItem key={item.text} disablePadding>
+            {/* MENU */}
+            <Box sx={{ flexGrow: 1, pt: 2 }}>
+
+                <List>
+                    {menuItems.map((item) => {
+                        const isActive = location.pathname === item.path;
+
+                        return (
+                            <ListItem key={item.text} disablePadding>
+                                <ListItemButton
+                                    onClick={() => handleNavigate(item.path)}
+                                    sx={{
+                                        mx: 1,
+                                        mb: 0.5,
+                                        borderRadius: 2,
+                                        backgroundColor: isActive ? 'primary.main' : 'transparent',
+                                        transition: 'all 0.12s ease',
+                                        '&:hover': {
+                                            backgroundColor: isActive ? 'primary.dark' : 'action.hover'
+                                        }
+                                    }}
+                                >
+                                    <ListItemIcon sx={{ color: isActive ? '#fff' : 'text.secondary', minWidth: 40 }}>
+                                        {item.icon}
+                                    </ListItemIcon>
+
+                                    <ListItemText primary={item.text} primaryTypographyProps={{ fontWeight: isActive ? 600 : 400 }} />
+
+                                </ListItemButton>
+
+                            </ListItem>
+                        );
+                    })}
+                </List>
+
+            </Box>
+
+
+            {/* FOOTER */}
+            {token && (
+                <Box sx={{ p: 2 }}>
+
+                    <Divider sx={{ mb: 2, borderColor: '#1e293b' }} />
+
+                    <ListItem disablePadding>
+
                         <ListItemButton
-                            onClick={() => navigate(item.path)}
-                            selected={location.pathname === item.path}
+
+                            onClick={handleLogout}
+
                             sx={{
-                                '&.Mui-selected': {
-                                    backgroundColor: '#3b82f6',
-                                    color: '#fff',
-                                    '&:hover': { backgroundColor: '#2563eb' }
-                                },
-                                '&:hover': { backgroundColor: '#334155' }
+
+                                borderRadius: 2,
+
+                                '&:hover': {
+
+                                    backgroundColor: '#1e293b'
+                                }
                             }}
                         >
-                            <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
-                                {item.icon}
-                            </ListItemIcon>
 
-                            <ListItemText primary={item.text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-
-                {/* Logout */}
-                {token && (
-                    <>
-                        <Divider sx={{ borderColor: '#334155', my: 1 }} />
-
-                        <ListItem disablePadding>
-                            <ListItemButton
-                                onClick={handleLogout}
+                            <ListItemIcon
                                 sx={{
-                                    '&:hover': { backgroundColor: '#334155' }
+                                    color: '#94a3b8',
+                                    minWidth: 40
                                 }}
                             >
-                                <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
-                                    <LogoutIcon />
-                                </ListItemIcon>
+                                <LogoutIcon />
+                            </ListItemIcon>
 
-                                <ListItemText primary="Logout" />
-                            </ListItemButton>
-                        </ListItem>
-                    </>
-                )}
-            </List>
-        </Drawer>
+                            <ListItemText primary="Logout" />
+
+                        </ListItemButton>
+
+                    </ListItem>
+
+                </Box>
+            )}
+
+        </Box>
+
     );
 };
 

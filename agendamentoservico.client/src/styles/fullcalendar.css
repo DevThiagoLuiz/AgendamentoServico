@@ -1,15 +1,15 @@
-/* FullCalendar Base Styles */
+/* FullCalendar Base Styles - themed to match app theme (purple primary) */
 .fc {
   font-family: inherit;
 }
 
 .fc-theme-standard td,
 .fc-theme-standard th {
-  border-color: #e0e0e0;
+  border-color: rgba(0,0,0,0.06);
 }
 
 .fc-theme-standard .fc-scrollgrid {
-  border-color: #e0e0e0;
+  border-color: rgba(0,0,0,0.06);
 }
 
 .fc-daygrid-day-frame {
@@ -17,18 +17,73 @@
 }
 
 .fc-day-today {
-  background-color: #f0f7ff !important;
+  background-color: color-mix(in srgb, var(--primary-main) 8%, white) !important; /* subtle tint using primary */
 }
 
 .fc-event {
   cursor: pointer;
-  border-radius: 4px;
-  padding: 2px 4px;
-  font-size: 0.85rem;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
+  background: linear-gradient(180deg, rgba(107,33,168,0.08) 0%, rgba(107,33,168,0.06) 100%);
+  border: 1px solid rgba(107,33,168,0.08);
+  color: var(--text-primary);
 }
 
 .fc-event:hover {
-  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  opacity: 0.98;
+}
+
+/* Mobile specific tweaks */
+@media (max-width: 600px) {
+  /* increase touch targets for event items in list view */
+  .fc .fc-list-item {
+    padding: 12px 8px;
+  }
+
+  .fc .fc-list-item-title, .fc .fc-list-item-time {
+    font-size: 14px;
+  }
+
+  /* make time labels more prominent in timeGrid */
+  .fc-timegrid-slot-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* events in timeGrid should show concise content */
+  .fc-timegrid-event .fc-event-main {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+}
+
+/* Reduce toolbar/title sizes on small and medium screens to avoid wrapping */
+@media (max-width: 900px) {
+  .fc .fc-toolbar-title {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .fc .fc-toolbar-button-group button,
+  .fc .fc-button {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+
+  .fc .fc-col-header-cell-cushion {
+    font-size: 11px;
+  }
 }
 
 .fc-daygrid-event {
@@ -36,50 +91,68 @@
   overflow: visible;
 }
 
+/* Primary buttons in calendar use the theme purple */
 .fc-button-primary {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: var(--primary-main);
+  border-color: var(--primary-main);
+  color: var(--primary-contrast);
 }
 
 .fc-button-primary:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
 }
 
 .fc-button-primary:disabled {
-  background-color: #9ca3af;
-  border-color: #9ca3af;
+  background-color: color-mix(in srgb, var(--primary-main) 40%, white 60%);
+  border-color: color-mix(in srgb, var(--primary-main) 40%, white 60%);
 }
 
 .fc-toolbar-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: rgba(0,0,0,0.87);
 }
 
-
-/* Hover suave */
-.fc-event {
-    border-radius: 8px;
-    padding: 4px;
-    font-weight: 500;
-    transition: 0.2s ease;
+/* Event state styles */
+.evento-disponivel {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary-main) 18%, white 82%) 0%, color-mix(in srgb, var(--primary-main) 14%, white 86%) 100%);
+  border: 1px solid color-mix(in srgb, var(--primary-main) 12%, black 88%);
 }
 
-/* Disponível */
 .evento-disponivel:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    cursor: pointer;
+  transform: scale(1.02);
 }
 
-/* Bloqueado */
 .evento-bloqueado {
-    opacity: 0.6;
-    cursor: not-allowed;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-/* Header moderno */
+/* melhora mobile */
+.fc {
+    font-size: 14px;
+}
+
+.fc-timegrid-slot {
+    height: 48px !important;
+}
+
+.fc-timegrid-axis {
+    font-size: 12px;
+}
+
 .fc-toolbar-title {
     font-weight: 600;
-    font-size: 18px;
+}
+
+/* remove compressão */
+.fc-timegrid-body {
+    min-height: 600px;
+}
+
+/* eventos bonitos */
+.fc-event {
+    border-radius: 6px;
+    padding: 2px 4px;
 }

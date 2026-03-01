@@ -117,36 +117,29 @@ const Usuarios: React.FC = () => {
 
     return (
         <Box>
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 3
-                }}
-            >
-                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                    Usuários
-                </Typography>
+            <Box sx={{ mb: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                        Usuários
+                    </Typography>
 
-                <Button
-                    variant="contained"
-                    startIcon={<Add />}
-                    onClick={handleAdd}
-                >
-                    Adicionar Usuário
-                </Button>
+                    <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>
+                        Adicionar Usuário
+                    </Button>
+                </Box>
             </Box>
 
-            <Box sx={{ height: 600 }}>
-                <DataGrid
-                    rows={usuarios}
-                    columns={columns}
-                    loading={loading}
-                    getRowId={(row) => row.id}
-                    pageSizeOptions={[10]}
-                    disableRowSelectionOnClick
-                />
+            <Box component="section">
+                <Box sx={{ width: '100%', overflow: 'hidden', borderRadius: 2 }}>
+                    <DataGrid
+                        rows={usuarios}
+                        columns={columns}
+                        loading={loading}
+                        getRowId={(row) => row.id}
+                        pageSizeOptions={[10]}
+                        disableRowSelectionOnClick
+                    />
+                </Box>
             </Box>
 
             <UsuarioModal
@@ -157,7 +150,7 @@ const Usuarios: React.FC = () => {
                 }}
                 usuario={selectedUsuario}
                 onSave={handleSave}
-                isAdmin={userTipo === "Admin"}
+                isAdmin={userTipo === 'Admin'}
                 profissionais={profissionais}
             />
         </Box>

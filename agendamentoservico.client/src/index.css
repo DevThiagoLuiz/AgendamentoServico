@@ -6,14 +6,60 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f8fafc; /* light neutral to match theme background.default */
+  color: rgba(0,0,0,0.87);
 }
 
 #root {
   width: 100%;
   height: 100vh;
 }
+
+/* Utility spacing tokens to keep consistent spacing */
+.container {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 900px) {
+  .container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+/* Theme CSS variables for easy reuse and runtime tweaks */
+:root{
+  --primary-main: #6b21a8;
+  --primary-dark: #5a189a;
+  --primary-contrast: #ffffff;
+  --background-default: #f8fafc;
+  --background-paper: #ffffff;
+  --text-primary: rgba(0,0,0,0.87);
+  --muted: rgba(0,0,0,0.54);
+}
+
+/* react-toastify overrides to use theme colors */
+.Toastify__toast-container {
+  font-family: inherit;
+}
+.Toastify__toast--success {
+  background: var(--primary-main);
+  color: var(--primary-contrast);
+}
+.Toastify__toast--error {
+  background: #e53935;
+  color: #fff;
+}
+.Toastify__progress-bar--success {
+  background: rgba(255,255,255,0.9);
+}
+.Toastify__progress-bar--error {
+  background: rgba(255,255,255,0.9);
+}
+
+/* Small helper to apply container padding globally via class */
+.app-container { padding: 16px; }

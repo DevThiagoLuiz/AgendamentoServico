@@ -8,7 +8,8 @@ import {
     Button,
     TextField,
     FormControlLabel,
-    Switch
+    Switch,
+    Box
 } from "@mui/material";
 import type { Profissional } from "../types";
 
@@ -50,23 +51,20 @@ const FuncionarioModal: React.FC<Props> = ({
             </DialogTitle>
 
             <DialogContent sx={{ mt: 2 }}>
-                <TextField
-                    label="Nome"
-                    fullWidth
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    sx={{ mb: 2 }}
-                />
+                <Box component="form" sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' } }}>
+                    <TextField
+                        label="Nome"
+                        fullWidth
+                        value={nome}
+                        onChange={(e) => setNome(e.target.value)}
+                    />
 
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={ativo}
-                            onChange={(e) => setAtivo(e.target.checked)}
-                        />
-                    }
-                    label="Ativo"
-                />
+                    <FormControlLabel
+                        control={<Switch checked={ativo} onChange={(e) => setAtivo(e.target.checked)} />}
+                        label="Ativo"
+                        sx={{ alignSelf: 'center' }}
+                    />
+                </Box>
             </DialogContent>
 
             <DialogActions>

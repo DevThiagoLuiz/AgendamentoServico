@@ -140,42 +140,34 @@ const Servicos: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-          Serviços
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={handleAdd}
-        >
-          Adicionar Serviço
-        </Button>
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+            Serviços
+          </Typography>
+          <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>
+            Adicionar Serviço
+          </Button>
+        </Box>
       </Box>
 
-      <Box sx={{ height: 600, width: '100%' }}>
-        <DataGrid
-          rows={servicos}
-          columns={columns}
-          loading={loading}
-          getRowId={(row) => row.id}
-          pageSizeOptions={[10, 25, 50, 100]}
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 10 }
-            }
-          }}
-          disableRowSelectionOnClick
-          sx={{
-            '& .MuiDataGrid-cell': {
-              borderBottom: '1px solid #e0e0e0'
-            },
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#f5f5f5',
-              fontWeight: 'bold'
-            }
-          }}
-        />
+      <Box component="section">
+        <Box sx={{ width: '100%', overflow: 'hidden', borderRadius: 2 }}>
+          <DataGrid
+            rows={servicos}
+            columns={columns}
+            loading={loading}
+            getRowId={(row) => row.id}
+            pageSizeOptions={[10, 25, 50, 100]}
+            initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+            disableRowSelectionOnClick
+            sx={{
+              '& .MuiDataGrid-cell': { borderBottom: '1px solid rgba(0,0,0,0.06)' },
+              '& .MuiDataGrid-columnHeaders': { backgroundColor: 'background.default', fontWeight: 'bold' }
+            }}
+            autoHeight={false}
+          />
+        </Box>
       </Box>
 
       <ServicoModal

@@ -1,28 +1,20 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import theme from "./theme";
 import MainLayout from "./Components/Layout/MainLayout";
 import Agenda from "./Pages/Agenda";
 import Servicos from "./Pages/Servicos";
 import Funcionarios from "./Pages/Funcionarios";
+import Dashboard from "./Pages/Dashboard";
 import Login from "./Pages/Login";
 import Horarios from "./Pages/Horarios";
 import Usuarios from "./Pages/Usuarios";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const theme = createTheme({
-    palette: {
-        mode: 'light',
-        primary: {
-            main: '#3b82f6',
-        },
-        secondary: {
-            main: '#64748b',
-        },
-    },
-});
+// theme imported from src/theme.tsx
 
 // Componente interno para rotas privadas
 const PrivateRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
@@ -63,6 +55,14 @@ const App: React.FC = () => {
                                 element={
                                     <PrivateRoute>
                                         <Servicos />
+                                    </PrivateRoute>
+                                }
+                            />
+                            <Route
+                                path="dashboard"
+                                element={
+                                    <PrivateRoute>
+                                        <Dashboard />
                                     </PrivateRoute>
                                 }
                             />

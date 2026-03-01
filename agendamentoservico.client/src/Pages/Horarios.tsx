@@ -153,41 +153,30 @@ const Horarios: React.FC = () => {
 
     return (
         <Box>
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 3
-                }}
-            >
-                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                    Horários
-                </Typography>
+            <Box sx={{ mb: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                        Horários
+                    </Typography>
 
-                <Button
-                    variant="contained"
-                    startIcon={<Add />}
-                    onClick={handleAdd}
-                >
-                    Criar Horários
-                </Button>
+                    <Button variant="contained" startIcon={<Add />} onClick={handleAdd}>
+                        Criar Horários
+                    </Button>
+                </Box>
             </Box>
 
-            <Box sx={{ height: 600, width: "100%" }}>
-                <DataGrid
-                    rows={horarios}
-                    columns={columns}
-                    loading={loading}
-                    getRowId={(row) => row.id}
-                    pageSizeOptions={[10, 25, 50]}
-                    initialState={{
-                        pagination: {
-                            paginationModel: { pageSize: 10 }
-                        }
-                    }}
-                    disableRowSelectionOnClick
-                />
+            <Box component="section">
+                <Box sx={{ width: '100%', overflow: 'hidden', borderRadius: 2 }}>
+                    <DataGrid
+                        rows={horarios}
+                        columns={columns}
+                        loading={loading}
+                        getRowId={(row) => row.id}
+                        pageSizeOptions={[10, 25, 50]}
+                        initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+                        disableRowSelectionOnClick
+                    />
+                </Box>
             </Box>
 
             <HorarioModal

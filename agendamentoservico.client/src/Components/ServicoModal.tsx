@@ -67,50 +67,51 @@ const ServicoModal: React.FC<ServicoModalProps> = ({
         {servico ? 'Editar Serviço' : 'Novo Serviço'}
       </DialogTitle>
       <DialogContent>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-          <TextField
-            label="Nome do Serviço"
-            fullWidth
-            required
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            inputProps={{ maxLength: 150 }}
-            helperText={`${nome.length}/150 caracteres`}
-          />
-          
-          <TextField
-            label="Duração (minutos)"
-            type="number"
-            fullWidth
-            required
-            value={duracaoMinutos}
-            onChange={(e) => setDuracaoMinutos(parseInt(e.target.value) || 0)}
-            inputProps={{ min: 1 }}
-          />
-          
-          <TextField
-            label="Preço (R$)"
-            type="number"
-            fullWidth
-            required
-            value={preco}
-            onChange={(e) => setPreco(parseFloat(e.target.value) || 0)}
-            inputProps={{ min: 0, step: 0.01 }}
-            InputProps={{
-              startAdornment: <span style={{ marginRight: 8 }}>R$</span>
-            }}
-          />
-          
-          <FormControlLabel
-            control={
-              <Switch
-                checked={ativo}
-                onChange={(e) => setAtivo(e.target.checked)}
-                color="primary"
-              />
-            }
-            label="Serviço Ativo"
-          />
+        <Box sx={{ pt: 1 }}>
+          <Box component="form" sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' } }}>
+            <TextField
+              label="Nome do Serviço"
+              fullWidth
+              required
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              inputProps={{ maxLength: 150 }}
+              helperText={`${nome.length}/150 caracteres`}
+            />
+
+            <TextField
+              label="Duração (minutos)"
+              type="number"
+              required
+              value={duracaoMinutos}
+              onChange={(e) => setDuracaoMinutos(parseInt(e.target.value) || 0)}
+              inputProps={{ min: 1 }}
+            />
+
+            <TextField
+              label="Preço (R$)"
+              type="number"
+              required
+              value={preco}
+              onChange={(e) => setPreco(parseFloat(e.target.value) || 0)}
+              inputProps={{ min: 0, step: 0.01 }}
+              InputProps={{
+                startAdornment: <span style={{ marginRight: 8 }}>R$</span>
+              }}
+            />
+
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={ativo}
+                  onChange={(e) => setAtivo(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label="Serviço Ativo"
+              sx={{ gridColumn: '1 / -1' }}
+            />
+          </Box>
         </Box>
       </DialogContent>
       <DialogActions>
